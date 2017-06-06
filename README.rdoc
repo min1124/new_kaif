@@ -1,0 +1,31 @@
+== README
+
+GIMS正源信息管理系统K3辅助模块
+
+该模块包含以下几个功能模块:
+
+* BOM齐套查询
+
+	
+
+* 货架号查询
+
+* 报废申请审批程序
+
+* 生产投料单/变更单审批
+
+* 收获确认程序
+
+* 销售订单录入
+
+* 回货计划查询
+
+* 需求回货数量计算
+
+* 海思储库查询
+
+* ...
+
+
+Please feel free to use a different markup language if you do not plan to run
+<tt>rake doc:app</tt>.
