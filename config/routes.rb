@@ -90,7 +90,9 @@ Rails.application.routes.draw do
 
   post 'fnumber/index' => 'fnumber#index'
   post 'fnumber/save' => 'fnumber#save'
-
+  post 'fnumber/upd' => 'fnumber#upd'
+  post 'fnumber/updSave' => 'fnumber#updSave'
+  post 'fnumber/del' => 'fnumber#del'
 
   post 'cancel/index' => 'cancelgoods#index'
   post 'cancel/fbillno' => 'cancelgoods#fbillno'

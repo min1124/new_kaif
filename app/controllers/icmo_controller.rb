@@ -11,18 +11,18 @@ class IcmoController < ApplicationController
 			if endtime&&starttime
 				if(endtime==""||starttime=="")
 					if zzdh==""
-						@a = ActiveRecord::Base.connection.select_all("select 制造单号,产品代码,生产车间,制造数量,SN号,产品名称,产品要求,制单人,包装要求,批号,工程师,品质工程师,日期,计划开工日期,计划完工日期 from "+view+" where 日期>dateadd(month,-1,getdate())")#.force_encoding("UTF-8")
+						@a = ActiveRecord::Base.connection.select_all("select 制造单号,产品代码,生产车间,制造数量,SN号,产品名称,产品要求,制单人,包装要求,批号,工程师,品质工程师,日期,计划开工日期,计划完工日期,配料时间 from "+view+" where 日期>dateadd(month,-1,getdate())")#.force_encoding("UTF-8")
 						render :json =>{:data => @a}
 					else
-						@a=ActiveRecord::Base.connection.select_all("select 制造单号,产品代码,生产车间,制造数量,SN号,产品名称,产品要求,制单人,包装要求,批号,工程师,品质工程师,日期,计划开工日期,计划完工日期 from "+view+" where 制造单号 like '%"+zzdh+"%'")
+						@a=ActiveRecord::Base.connection.select_all("select 制造单号,产品代码,生产车间,制造数量,SN号,产品名称,产品要求,制单人,包装要求,批号,工程师,品质工程师,日期,计划开工日期,计划完工日期,配料时间 from "+view+" where 制造单号 like '%"+zzdh+"%'")
 						render :json =>{:data => @a}
 					end
 				else
-					@a=ActiveRecord::Base.connection.select_all("select 制造单号,产品代码,生产车间,制造数量,SN号,产品名称,产品要求,制单人,包装要求,批号,工程师,品质工程师,日期,计划开工日期,计划完工日期 from "+view+" where 制造单号 like '%"+zzdh+"%' and  日期 >='"+starttime+"' and 日期 <='"+endtime+"'")
+					@a=ActiveRecord::Base.connection.select_all("select 制造单号,产品代码,生产车间,制造数量,SN号,产品名称,产品要求,制单人,包装要求,批号,工程师,品质工程师,日期,计划开工日期,计划完工日期,配料时间 from "+view+" where 制造单号 like '%"+zzdh+"%' and  日期 >='"+starttime+"' and 日期 <='"+endtime+"'")
 					render :json =>{:data => @a}
 				end
 			else
-				render :json =>{:data =>ActiveRecord::Base.connection.select_all("select 制造单号,产品代码,生产车间,制造数量,SN号,产品名称,产品要求,制单人,包装要求,批号,工程师,品质工程师,日期,计划开工日期,计划完工日期 from "+view+" where 日期>dateadd(month,-1,getdate())")}	
+				render :json =>{:data =>ActiveRecord::Base.connection.select_all("select 制造单号,产品代码,生产车间,制造数量,SN号,产品名称,产品要求,制单人,包装要求,批号,工程师,品质工程师,日期,计划开工日期,计划完工日期,配料时间 from "+view+" where 日期>dateadd(month,-1,getdate())")}	
 			end		
 		else
 			return nopower!
