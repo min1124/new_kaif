@@ -5,25 +5,43 @@ class IcmoController < ApplicationController
 		endtime = params[:endtime]
 		zzdh = params[:zzdh]
 		type = params[:type]
+		sccjSel = params[:sccjSel]
 		view = "v_PPBomList"
-		
+		sqlQuery = "select 制造单号,产品代码,生产车间,制造数量,SN号,产品名称,产品要求,制单人,包装要求,批号,工程师,品质工程师,日期,计划开工日期,计划完工日期,配料时间 from "+view+" where 1=1";
 		if power(T_K3_Auth, "t_icmo_auth")
 			if endtime&&starttime
 				if(endtime==""||starttime=="")
 					if zzdh==""
-						@a = ActiveRecord::Base.connection.select_all("select 制造单号,产品代码,生产车间,制造数量,SN号,产品名称,产品要求,制单人,包装要求,批号,工程师,品质工程师,日期,计划开工日期,计划完工日期,配料时间 from "+view+" where 日期>dateadd(month,-1,getdate())")#.force_encoding("UTF-8")
-						render :json =>{:data => @a}
+						sqlQuery += " and 日期>dateadd(month,-1,getdate())";
 					else
-						@a=ActiveRecord::Base.connection.select_all("select 制造单号,产品代码,生产车间,制造数量,SN号,产品名称,产品要求,制单人,包装要求,批号,工程师,品质工程师,日期,计划开工日期,计划完工日期,配料时间 from "+view+" where 制造单号 like '%"+zzdh+"%'")
-						render :json =>{:data => @a}
+						sqlQuery += " and 制造单号 like '%"+zzdh+"%'";
 					end
 				else
-					@a=ActiveRecord::Base.connection.select_all("select 制造单号,产品代码,生产车间,制造数量,SN号,产品名称,产品要求,制单人,包装要求,批号,工程师,品质工程师,日期,计划开工日期,计划完工日期,配料时间 from "+view+" where 制造单号 like '%"+zzdh+"%' and  日期 >='"+starttime+"' and 日期 <='"+endtime+"'")
-					render :json =>{:data => @a}
+					sqlQuery += " and 制造单号 like '%"+zzdh+"%' and  日期 >='"+starttime+"' and 日期 <='"+endtime+"'";
 				end
 			else
-				render :json =>{:data =>ActiveRecord::Base.connection.select_all("select 制造单号,产品代码,生产车间,制造数量,SN号,产品名称,产品要求,制单人,包装要求,批号,工程师,品质工程师,日期,计划开工日期,计划完工日期,配料时间 from "+view+" where 日期>dateadd(month,-1,getdate())")}	
-			end		
+				sqlQuery += " and 日期>dateadd(month,-1,getdate())";
+			end	
+			if sccjSel&&(sccjSel!="")
+				case sccjSel
+                    when "ME车间"
+                        sqlQuery += " and 生产车间 = 'ME车间'";
+                    when "TO生产部"
+                        sqlQuery += " and 生产车间 = 'TO生产部'";
+                    when "管芯生产部"
+                        sqlQuery += " and 生产车间 = '管芯生产部'";
+                    when "模块生产一部"
+                        sqlQuery += " and 生产车间 = '模块生产一部'";
+                    when "器件生产一部"
+                        sqlQuery += " and 生产车间 = '器件生产一部'";
+                    when "研发车间(正源)"
+                        sqlQuery += " and 生产车间 = '研发车间(正源)'";
+                    when "子系统BOB车间"
+                        sqlQuery += " and 生产车间 = '子系统BOB车间'";
+	            end
+			end	
+			@a=ActiveRecord::Base.connection.select_all(sqlQuery);
+			render :json =>{:data => @a}	
 		else
 			return nopower!
 		end		
