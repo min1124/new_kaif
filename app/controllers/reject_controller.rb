@@ -6,6 +6,7 @@ class RejectController < ApplicationController
     		endtime = params[:endtime]
             djzt = params[:djzt]
             bfjecx = params[:bfjecx]
+            bflbcx = params[:bflbcx]
             sqlDjzt = "";
             if djzt&&(""!=djzt)
                 case djzt
@@ -19,15 +20,15 @@ class RejectController < ApplicationController
                         sqlDjzt += " and 关闭标志 = 0 and 部门 like '管芯%' and 报废部门负责人 is null";
                     when "仓库"
                         sqlDjzt += " and 关闭标志 = 0 and 部门 like '仓库%' and 报废部门负责人 is null";
-                    when "待ME负责人审批"
+                    when "待ME负责人审核"
                         sqlDjzt += " and 关闭标志 = 0 and 报废部门负责人 is not null and ME负责人 is null";
-                    when "待品质负责人审批"
+                    when "待品质负责人审核"
                         sqlDjzt += " and 关闭标志 = 0 and ME负责人 is not null and 品质负责人 is null";
-                    when "待生管负责人审批"
+                    when "待生管负责人审核"
                         sqlDjzt += " and 关闭标志 = 0 and 品质负责人 is not null and 生产管理负责人 is null";
-                    when "待财务负责人审批"
+                    when "待财务负责人审核"
                         sqlDjzt += " and 关闭标志 = 0 and 生产管理负责人 is not null and 财务负责人 is null";
-                    when "待分管副总审批"
+                    when "待分管副总审核"
                         sqlDjzt += " and 关闭标志 = 0 and 财务负责人 is not null and 分管副总 is null";
                     when "待仓管员确认"
                         sqlDjzt += " and 关闭标志 = 0 and 分管副总 is not null and 仓管员 is null";
@@ -38,13 +39,21 @@ class RejectController < ApplicationController
                 end
             end
 
-            sqlBfjecx = "";
             if bfjecx&&(""!=bfjecx)
                 case bfjecx
-                    when "<=3000"
-                        sqlDjzt += " and convert(numeric(18,0),报废金额) <= 3000";
+                    when "≤3000"
+                        sqlDjzt += " and 报废金额 <= 3000"
                     when ">3000"
-                        sqlDjzt += " and convert(numeric(18,0),报废金额) > 3000";
+                        sqlDjzt += " and 报废金额 > 3000"
+                end
+            end
+
+            if bflbcx&&(""!=bflbcx)
+                case bflbcx
+                    when "成品报废"
+                        sqlDjzt += " and 报废类别 = '成品报废'";
+                    when "原材料报废"
+                        sqlDjzt += " and 报废类别 = '原材料报废'";
                 end
             end
             
@@ -107,14 +116,14 @@ class RejectController < ApplicationController
                 bfsl = zzsl.to_f - rksl.to_f;
             end
             if ""!=cpdm 
-                if bfsl>0
+                if bfsl != 0
                     bfjetotal = getBfdj(bflb,bfsl,cpdm);
                     if "false_more" == bfjetotal
                         render :text =>"产品代码#{cpdm}存在多个报废单价，请核实！"
                     elsif "false_nil" == bfjetotal
                         render :text =>"产品代码#{cpdm}的报废单价未维护！"
                     else
-                        sqlInsert3 = "insert into t_RejCheckFlu(FRejBillNo,RejAmount) values('"+djbh+"','"+bfjetotal.to_s+"')";
+                        sqlInsert3 = "insert into t_RejCheckFlu(FRejBillNo,RejAmount_1) values('"+djbh+"','"+bfjetotal.to_s+"')";
                         a = inputs.length/6
                         if bmbz==@user.dept&&power(T_Reject_Auth, "create_auth")
                             ActiveRecord::Base.transaction do
@@ -135,6 +144,8 @@ class RejectController < ApplicationController
                             render :text =>"保存失败"
                         end
                     end
+                else
+                    render :text =>"报废数量小于或等于0！"
                 end
             else
                 render :text =>"产品代码为空！"
@@ -187,7 +198,7 @@ class RejectController < ApplicationController
                     ActiveRecord::Base.transaction do
                         conn.insert(sqlInsert2[0,sqlInsert2.length-9]); 
                         conn.insert(sqlInsert1);
-                        sqlInsert3 = "insert into t_RejCheckFlu(FRejBillNo,RejAmount) values('"+djbh+"','"+bfjetotal.to_f+"')";
+                        sqlInsert3 = "insert into t_RejCheckFlu(FRejBillNo,RejAmount_1) values('" + djbh + "','" + bfjetotal.to_s + "')";
                         conn.insert(sqlInsert3);  
                     end
                     render :text =>"保存成功"              
@@ -245,33 +256,51 @@ class RejectController < ApplicationController
     	case type
     	when "bm"
     		if dept==sql&&power(T_Reject_Auth, "dept_auth")
-    			a="insert into t_RejCheckFlu(FRejBillNo,RejDeptManager) values('"+djbh+"','"+@user.name+"')"
-    			if conn.insert(a)
-    			    render :text => "审核成功"
+                djbhInsOrUpd = conn.select_value("select FRejBillNo from t_RejCheckFlu where FRejBillNo = '"+djbh+"'");
+                if djbhInsOrUpd&&(""!=djbhInsOrUpd)
+                    a="update t_RejCheckFlu set RejDeptManager = '"+@user.name+"' where FRejBillNo = '"+djbh+"'"
+                    if conn.update(a)
+                        render :text => "审核成功"
+                    else
+                        render :text => "审核失败"
+                    end
                 else
-                    render :text => "审核失败"
+                    a="insert into t_RejCheckFlu (FRejBillNo,RejDeptManager) values('"+djbh+"','"+@user.name+"')"
+                    if conn.insert(a)
+                        render :text => "审核失败"
+                    else
+                        render :text => "审核成功"
+                    end
                 end
     		else
     			return nopower!
     		end
     	when "me"
-    		if dept==sql&&power(T_Reject_Auth, "me_auth")
-    			a="update t_RejCheckFlu set MEManager = '"+@user.name+"',MEManagerNote = '"+params[:note]+"' where FRejBillNo = '"+djbh+"'"
-                if conn.update(a)
-                    render :text => "审核成功"
-                else
-                    render :text => "审核失败"
+    		if "制造工程部"==sql
+                case dept
+                    when "管芯生产部"
+                        meSh(@user.name, params[:note], djbh, "me_gx_auth")
+                    when "器件生产一部"
+                        meSh(@user.name, params[:note], djbh, "me_qj_auth")
+                    when "模块生产一部"
+                        meSh(@user.name, params[:note], djbh, "me_mk_auth")
+                    when "TO生产部"
+                        meSh(@user.name, params[:note], djbh, "me_to_auth")
                 end
     		else
     			return nopower!
     		end
     	when "pz"
-    		if power(T_Reject_Auth, "pz_auth")
-    			a="update t_RejCheckFlu set QltManager = '"+@user.name+"',QltManagerNote = '"+params[:note]+"' where FRejBillNo = '"+djbh+"'"
-    			if conn.update(a)
-                    render :text => "审核成功"
-                else
-                    render :text => "审核失败"
+            if "品质部"==sql
+                case dept
+                    when "管芯生产部"
+                        pzSh(@user.name, params[:note], djbh, "pz_gx_auth")
+                    when "器件生产一部"
+                        pzSh(@user.name, params[:note], djbh, "pz_qj_auth")
+                    when "模块生产一部"
+                        pzSh(@user.name, params[:note], djbh, "pz_mk_auth")
+                    when "TO生产部"
+                        pzSh(@user.name, params[:note], djbh, "pz_to_auth")
                 end
     		else
     			return nopower!
@@ -289,7 +318,7 @@ class RejectController < ApplicationController
     		end
     	when "cw"
     		if power(T_Reject_Auth, "cw_auth")
-    			a="update t_RejCheckFlu set FinManager = '"+@user.name+"',FinManagerNote = '"+params[:note]+"',RejAmount = '"+params[:fin]+"' where FRejBillNo = '"+djbh+"'"
+    			a="update t_RejCheckFlu set FinManager = '"+@user.name+"',FinManagerNote = '"+params[:note]+"',RejAmount_1 = '"+params[:fin]+"' where FRejBillNo = '"+djbh+"'"
     			if conn.update(a)
                     render :text => "审核成功"
                 else
@@ -320,8 +349,6 @@ class RejectController < ApplicationController
     		else
     			return nopower!
     		end
-		else
-			render :text => "审核失败"
 		end		
   	end
 
@@ -335,73 +362,43 @@ class RejectController < ApplicationController
         type = params[:type]
         case type
         when "me"
-            if dept==sql&&power(T_Reject_Auth, "me_auth")
-                a="update t_Rejction set FCloseFlag = 1 where FBillNo = '"+djbh+"'"
-                if conn.update(a)
-                    render :text => "终止成功"
-                else
-                    render :text => "终止失败"
+            if "制造工程部"==sql
+                case dept
+                    when "管芯生产部"
+                        functionGb(djbh, "me_gx_auth")
+                    when "器件生产一部"
+                        functionGb(djbh, "me_qj_auth")
+                    when "模块生产一部"
+                        functionGb(djbh, "me_mk_auth")
+                    when "TO生产部"
+                        functionGb(djbh, "me_to_auth")
                 end
             else
                 return nopower!
             end
         when "pz"
-            if power(T_Reject_Auth, "pz_auth")
-                a="update t_Rejction set FCloseFlag = 1 where FBillNo = '"+djbh+"'"
-                if conn.update(a)
-                    render :text => "终止成功"
-                else
-                    render :text => "终止失败"
+            if "品质部"==sql
+                case dept
+                    when "管芯生产部"
+                        functionGb(djbh, "pz_gx_auth")
+                    when "器件生产一部"
+                        functionGb(djbh, "pz_qj_auth")
+                    when "模块生产一部"
+                        functionGb(djbh, "pz_mk_auth")
+                    when "TO生产部"
+                        functionGb(djbh, "pz_to_auth")
                 end
             else
                 return nopower!
             end
         when "sg"
-            if power(T_Reject_Auth, "sg_auth")
-                a="update t_Rejction set FCloseFlag = 1 where FBillNo = '"+djbh+"'"
-                if conn.update(a)
-                    render :text => "终止成功"
-                else
-                    render :text => "终止失败"
-                end
-            else
-                return nopower!
-            end
+            functionGb(djbh, "sg_auth")
         when "cw"
-            if power(T_Reject_Auth, "cw_auth")
-                a="update t_Rejction set FCloseFlag = 1 where FBillNo = '"+djbh+"'"
-                if conn.update(a)
-                    render :text => "终止成功"
-                else
-                    render :text => "终止失败"
-                end
-            else
-                return nopower!
-            end
+            functionGb(djbh, "cw_auth")
         when "fgfz"
-            if power(T_Reject_Auth, "fz_auth")
-                a="update t_Rejction set FCloseFlag = 1 where FBillNo = '"+djbh+"'"
-                if conn.update(a)
-                    render :text => "终止成功"
-                else
-                    render :text => "终止失败"
-                end
-            else
-                return nopower!
-            end         
+            functionGb(djbh, "fz_auth")      
         when "ck"
-            if power(T_Reject_Auth, "cgy_auth")
-                a="update t_Rejction set FCloseFlag = 1 where FBillNo = '"+djbh+"'"
-                if conn.update(a)
-                    render :text => "终止成功"
-                else
-                    render :text => "终止失败"
-                end
-            else
-                return nopower!
-            end
-        else
-            render :text => "终止失败"
+            functionGb(djbh, "cgy_auth")
         end     
     end
 
@@ -423,7 +420,6 @@ class RejectController < ApplicationController
     def plsh
         name = params[:name]
         @user = TUser.find_by_name(name)
-        conn = ActiveRecord::Base.connection()
         if power(T_Reject_Auth, "fz_auth")
             fbillno = params[:fbillno]
             conn = ActiveRecord::Base.connection()
@@ -436,5 +432,47 @@ class RejectController < ApplicationController
         else
             return nopower!
         end     
+    end
+
+    def meSh(meManager, meManagerNote, djbh, auth)
+        if power(T_Reject_Auth, auth)
+            conn = ActiveRecord::Base.connection()
+            a="update t_RejCheckFlu set MEManager = '"+meManager+"',MEManagerNote = '"+meManagerNote+"' where FRejBillNo = '"+djbh+"'"
+            if conn.update(a)
+                render :text => "审核成功"
+            else
+                render :text => "审核失败"
+            end
+        else
+            return nopower!
+        end
+    end
+
+    def pzSh(qltManager, qltManagerNote, djbh, auth)
+        if power(T_Reject_Auth, auth)
+            conn = ActiveRecord::Base.connection()
+            a="update t_RejCheckFlu set QltManager = '"+qltManager+"',QltManagerNote = '"+qltManagerNote+"' where FRejBillNo = '"+djbh+"'"
+            if conn.update(a)
+                render :text => "审核成功"
+            else
+                render :text => "审核失败"
+            end
+        else
+            return nopower!
+        end
+    end
+
+    def functionGb(djbh, auth)
+        conn = ActiveRecord::Base.connection()
+        if power(T_Reject_Auth, auth)
+            a="update t_Rejction set FCloseFlag = 1 where FBillNo = '"+djbh+"'"
+            if conn.update(a)
+                render :text => "终止成功"
+            else
+                render :text => "终止失败"
+            end
+        else
+            return nopower!
+        end
     end
 end

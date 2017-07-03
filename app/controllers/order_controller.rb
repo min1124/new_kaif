@@ -533,6 +533,7 @@ class OrderController < ApplicationController
 				jhrq_1 = params[:jhrq_1]
 				cnjhrq_1 = params[:cnjhrq_1]
 				for i in 0..cpdm_1.length-1	
+					dyxh_1 = conn.select_value("select FMapName from ICItemMapping where FMapNumber = '"+dydm_1[i]+"' and FCompanyID ="+ghdw.to_s)
 					@vmientry = Vmientry.new #vmi 从表
 					@vmientry.FID = finterid
 					@vmientry.FText = dydm_1[i]
@@ -540,6 +541,7 @@ class OrderController < ApplicationController
 					@vmientry.FDecimal = sl_1[i]
 					@vmientry.FDecimal7 = sl_1[i]
 					@vmientry.FText3 = ddhh_1[i]
+					@vmientry.FText1 = dyxh_1
 					#@vmientry.FText4 #评审订单号
 					@vmientry.FDate3 =  Date.parse jhrq_1[i]
 					@vmientry.FDate4 = Date.parse cnjhrq_1[i]
