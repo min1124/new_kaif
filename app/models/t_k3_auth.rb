@@ -16,6 +16,8 @@ class T_K3_Auth < ActiveRecord::Base
 		self.t_stockbill_auth = ""
 		self.t_icsearch_auth = ""
 		self.t_fnumber_auth = ""
+		self.t_perfchar_auth = ""
+		self.t_seoutstock_auth = ""
 		self.save
 	end
 end

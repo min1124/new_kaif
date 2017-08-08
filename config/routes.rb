@@ -93,6 +93,23 @@ Rails.application.routes.draw do
   post 'fnumber/upd' => 'fnumber#upd'
   post 'fnumber/updSave' => 'fnumber#updSave'
   post 'fnumber/del' => 'fnumber#del'
+  post 'fnumber/f102' => 'fnumber#f102'
+  post 'fnumber/getfnumber' => 'fnumber#getfnumber'
+  post 'fnumber/checkFnumber' => 'fnumber#checkFnumber'
+  post 'fnumber/fnumber' => 'fnumber#fnumber'
+  post 'fnumber/customerCode' => 'fnumber#customerCode'
+  post 'fnumber/productLine' => 'fnumber#productLine'
+  post 'fnumber/updQuery' => 'fnumber#updQuery'
+  post 'fnumber/upload' => 'fnumber#upload'
+
+  get 'custperfchar/load' => 'custperfchar#load'
+  post 'custperfchar/upload' => 'custperfchar#upload'
+
+  get 'fbillnoclosed/load' => 'fbillnoclosed#load'
+  post 'fbillnoclosed/save' => 'fbillnoclosed#save'
+
+  get 'seoutstock/load' => 'seoutstock#index'
+  post 'seoutstock/getCk' => 'seoutstock#getCk'
 
   post 'cancel/index' => 'cancelgoods#index'
   post 'cancel/fbillno' => 'cancelgoods#fbillno'

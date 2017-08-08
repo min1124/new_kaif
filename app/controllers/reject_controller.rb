@@ -7,6 +7,7 @@ class RejectController < ApplicationController
             djzt = params[:djzt]
             bfjecx = params[:bfjecx]
             bflbcx = params[:bflbcx]
+            bfbmcx = params[:bfbmcx]
             sqlDjzt = "";
             if djzt&&(""!=djzt)
                 case djzt
@@ -56,12 +57,27 @@ class RejectController < ApplicationController
                         sqlDjzt += " and 报废类别 = '原材料报废'";
                 end
             end
+
+            if bfbmcx&&(""!=bfbmcx)
+                case bfbmcx
+                    when "模块"
+                        sqlDjzt += " and 部门 like '模块%'";
+                    when "器件"
+                        sqlDjzt += " and 部门 like '器件%'";
+                    when "TO"
+                        sqlDjzt += " and 部门 like 'TO%'";
+                    when "管芯"
+                        sqlDjzt += " and 部门 like '管芯%'";
+                end
+            end
             
     		if endtime&&starttime&&(""!=endtime)&&(""!=starttime)
-    			@a=ActiveRecord::Base.connection.select_all("select * from v_Rejction where 日期 >= '"+starttime+"' and 日期 <='"+endtime+"'" + sqlDjzt)
+    			@a=ActiveRecord::Base.connection.select_all("select * from v_Rejction 
+                    where 日期 >= '"+starttime+"' and 日期 <='"+endtime+"'" + sqlDjzt)
     			render :json =>{:data =>@a}
     		else
-    			@a=ActiveRecord::Base.connection.select_all("select * from v_Rejction where 日期 > dateadd(month,-1,getdate())" + sqlDjzt)
+    			@a=ActiveRecord::Base.connection.select_all("select * from v_Rejction 
+                    where 日期 > dateadd(month,-1,getdate())" + sqlDjzt)
     			render :json =>{:data =>@a}
     		end
         else
@@ -110,7 +126,7 @@ class RejectController < ApplicationController
             if !zzsl||""==zzsl
                 zzsl = 0;
             end
-            if zzsl < rksl
+            if zzsl.to_f < rksl.to_f
                 render :text =>"制造数量小于入库数量！"
             else 
                 bfsl = zzsl.to_f - rksl.to_f;
@@ -242,7 +258,8 @@ class RejectController < ApplicationController
 	    render :text => @b 
     end
     def de
-    	@b = ActiveRecord::Base.connection.select_all("select FItemID,FName from t_Department where FDeleted = 0 and FParentID in (504,508) ")
+    	@b = ActiveRecord::Base.connection.select_all("select FItemID,FName 
+            from t_Department where FDeleted = 0 and FParentID in (504,508) ")
 		render :json =>{:data =>@b}
     end
     def sh
