@@ -30,10 +30,10 @@ class IcmoController < ApplicationController
                         sqlQuery += " and 生产车间 = 'TO生产部'";
                     when "管芯生产部"
                         sqlQuery += " and 生产车间 = '管芯生产部'";
-                    when "模块生产一部"
-                        sqlQuery += " and 生产车间 = '模块生产一部'";
-                    when "器件生产一部"
-                        sqlQuery += " and 生产车间 = '器件生产一部'";
+                    when "模块"
+                        sqlQuery += " and 生产车间 like '模块%'";
+                    when "器件"
+                        sqlQuery += " and 生产车间 like '器件%'";
                     when "研发车间(正源)"
                         sqlQuery += " and 生产车间 = '研发车间(正源)'";
                     when "子系统BOB车间"

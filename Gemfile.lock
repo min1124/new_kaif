@@ -1,3 +1,13 @@
+GIT
+  remote: git://github.com/randym/axlsx.git
+  revision: c8ac844572b25fda358cc01d2104720c4c42f450
+  specs:
+    axlsx (2.1.0.pre)
+      htmlentities (~> 4.3.4)
+      mimemagic (~> 0.3)
+      nokogiri (>= 1.6.6)
+      rubyzip (>= 1.2.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -37,6 +47,7 @@ GEM
     daemons (1.2.3)
     erubis (2.7.0)
     eventmachine (1.2.0.1)
+    htmlentities (4.3.4)
     i18n (0.7.0)
     jbuilder (2.4.1)
       activesupport (>= 3.0.0, < 5.1)
@@ -46,9 +57,13 @@ GEM
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
     mime-types (1.25.1)
+    mimemagic (0.3.2)
     mini_portile (0.6.2)
+    mini_portile2 (2.2.0)
     minitest (5.8.4)
     multi_json (1.11.2)
+    nokogiri (1.8.0)
+      mini_portile2 (~> 2.2.0)
     polyglot (0.3.5)
     rack (1.5.5)
     rack-cors (0.4.0)
@@ -74,6 +89,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (11.1.2)
     ruby-ole (1.2.12)
+    rubyzip (1.2.1)
     spreadsheet (1.1.2)
       ruby-ole (>= 1.0)
     spring (1.7.1)
@@ -98,12 +114,14 @@ GEM
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
     will_paginate (3.1.0)
+    writeexcel (1.0.5)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   activerecord-sqlserver-adapter
+  axlsx!
   bcrypt (~> 3.1.7)
   jbuilder
   rack-cors
@@ -114,6 +132,7 @@ DEPENDENCIES
   thin
   tiny_tds
   will_paginate
+  writeexcel
 
 BUNDLED WITH
-   1.11.2
+   1.14.6

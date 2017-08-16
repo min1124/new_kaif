@@ -655,8 +655,7 @@ class OrderController < ApplicationController
 		conn = ActiveRecord::Base.connection()
 		time = Time.new.strftime("%Y%m")
 		date = time[2,time.length-1]
-		fbillno = conn.select_value("select top 1 max(fbillno) as fbillno from " +table+ " where "
-			+po_number+" ='"+params[:po_number]+"' group by len(fbillno) order by len(fbillno) desc" )
+		fbillno = conn.select_value("select top 1 max(fbillno) as fbillno from " +table+ " where "+po_number+" ='"+params[:po_number]+"' group by len(fbillno) order by len(fbillno) desc" )
 	    puts "-------------------"
 		puts fbillno
 		puts po_number

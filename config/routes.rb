@@ -111,6 +111,10 @@ Rails.application.routes.draw do
   get 'seoutstock/load' => 'seoutstock#index'
   post 'seoutstock/getCk' => 'seoutstock#getCk'
 
+  post 'deliveryorder/index' => 'deliveryorder#test_excel'
+  post 'deliveryorder/ckdhChange' => 'deliveryorder#ckdhChange'
+  
+
   post 'cancel/index' => 'cancelgoods#index'
   post 'cancel/fbillno' => 'cancelgoods#fbillno'
   post 'cancel/new' => 'cancelgoods#new'

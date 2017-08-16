@@ -27,3 +27,9 @@ gem 'spreadsheet'
 
 # To use debugger
 # gem 'ruby-debug19', :require => 'ruby-debug'
+
+# Specify your gem's dependencies in writeexcel.gemspec
+gem 'axlsx', :github => "randym/axlsx"
+# gem 'roo', :github => 'roo-rb/roo'
+# gem "roo-xls", :github => "roo-rb/roo-xls"
+ gem 'writeexcel'

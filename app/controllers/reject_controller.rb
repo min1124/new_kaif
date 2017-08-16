@@ -297,9 +297,9 @@ class RejectController < ApplicationController
                 case dept
                     when "管芯生产部"
                         meSh(@user.name, params[:note], djbh, "me_gx_auth")
-                    when "器件生产一部"
+                    when "器件生产部"
                         meSh(@user.name, params[:note], djbh, "me_qj_auth")
-                    when "模块生产一部"
+                    when "模块生产部"
                         meSh(@user.name, params[:note], djbh, "me_mk_auth")
                     when "TO生产部"
                         meSh(@user.name, params[:note], djbh, "me_to_auth")
@@ -312,9 +312,9 @@ class RejectController < ApplicationController
                 case dept
                     when "管芯生产部"
                         pzSh(@user.name, params[:note], djbh, "pz_gx_auth")
-                    when "器件生产一部"
+                    when "器件生产部"
                         pzSh(@user.name, params[:note], djbh, "pz_qj_auth")
-                    when "模块生产一部"
+                    when "模块生产部"
                         pzSh(@user.name, params[:note], djbh, "pz_mk_auth")
                     when "TO生产部"
                         pzSh(@user.name, params[:note], djbh, "pz_to_auth")
@@ -383,9 +383,9 @@ class RejectController < ApplicationController
                 case dept
                     when "管芯生产部"
                         functionGb(djbh, "me_gx_auth")
-                    when "器件生产一部"
+                    when "器件生产部"
                         functionGb(djbh, "me_qj_auth")
-                    when "模块生产一部"
+                    when "模块生产部"
                         functionGb(djbh, "me_mk_auth")
                     when "TO生产部"
                         functionGb(djbh, "me_to_auth")
@@ -398,9 +398,9 @@ class RejectController < ApplicationController
                 case dept
                     when "管芯生产部"
                         functionGb(djbh, "pz_gx_auth")
-                    when "器件生产一部"
+                    when "器件生产部"
                         functionGb(djbh, "pz_qj_auth")
-                    when "模块生产一部"
+                    when "模块生产部"
                         functionGb(djbh, "pz_mk_auth")
                     when "TO生产部"
                         functionGb(djbh, "pz_to_auth")

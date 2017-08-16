@@ -17,8 +17,8 @@ default: &default
 development:
   <<: *default
   #k3正式库2245
-  # database: AIS20090714202245
-  database: AIS20170606101633
+  database: AIS20090714202245
+  # database: AIS20170606101633
 
 
 # Warning: The database defined as "test" will be erased and
@@ -27,15 +27,15 @@ development:
 test:
   <<: *default
   #k3正式库2245
-  # database: AIS20090714202245
-  database: AIS20170606101633
+  database: AIS20090714202245
+  # database: AIS20170606101633
 
 
 production:
   <<: *default
   #k3正式库2245
-  # database: AIS20090714202245
-  database: AIS20170606101633
+  database: AIS20090714202245
+  # database: AIS20170606101633
 
 
 typo: #外部数据库
@@ -48,9 +48,9 @@ typo: #外部数据库
   username: sa
   password: abc123!
   #gims测试库
-  database: K3
+  # database: K3
   #gims正式库
-  # database: Domitory
+  database: Domitory
 
 Lte: #外部数据库
   adapter:  sqlserver
