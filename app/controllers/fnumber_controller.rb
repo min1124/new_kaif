@@ -67,26 +67,6 @@ class FnumberController < ApplicationController
 			id = params[:id]
             custFnumber = Cust_Fnumber.find(id)
 
-            custFnumberRec = Cust_Fnumber_Rec.new;
-            custFnumberRec.ID = id
-            custFnumberRec.source = custFnumber.source
-            custFnumberRec.source_code = custFnumber.source_code
-            custFnumberRec.customer_code = custFnumber.customer_code
-            custFnumberRec.customer_name = custFnumber.customer_name
-            custFnumberRec.fnumber = custFnumber.fnumber
-            custFnumberRec.product_model_zy = custFnumber.product_model_zy
-            custFnumberRec.customer_number = custFnumber.customer_number
-            custFnumberRec.product_model = custFnumber.product_model
-            custFnumberRec.product_line = custFnumber.product_line
-            custFnumberRec.product_status = custFnumber.product_status
-            custFnumberRec.shipping_or_not = custFnumber.shipping_or_not
-            custFnumberRec.cost_priority = custFnumber.cost_priority
-            custFnumberRec.update_date1 = custFnumber.update_date1
-            custFnumberRec.F11 = custFnumber.F11
-            custFnumberRec.kcxhjz_date = custFnumber.kcxhjz_date
-            custFnumberRec.note = custFnumber.note
-            custFnumberRec.save
-
 			productStatus = params[:productStatus]
             shippingOrNot = params[:shippingOrNot]
             costPriority = params[:costPriority]
@@ -103,7 +83,7 @@ class FnumberController < ApplicationController
             custFnumber.kcxhjz_date = kcxhjzDate
             custFnumber.note = note
         	if custFnumber.save!
-            	render :text => "保存成功";
+            	render :text => "修改成功";
         	else 
             	render :text => "保存失败";
             end
@@ -126,12 +106,14 @@ class FnumberController < ApplicationController
   	end
 
     def getfnumber
-    	@b = ActiveRecord::Base.connection.select_all("Select distinct(t2.FNumber) as 物料代码 
-            From ICItemMapping t1, t_ICItem t2, t_Organization t3
-            Where t1.FItemID=t2.FItemID And t1.FPropertyID=1  And t2.FDeleted=0  
-            And t1.FCompanyID=t3.FItemID And t1.FCompanyID in (
-                select FItemID from t_Organization where fnumber like '%A.%' and fitemid<>'71086'
-            ) group by t2.FNumber Order by 物料代码")
+    	# @b = ActiveRecord::Base.connection.select_all("Select distinct(t2.FNumber) as 物料代码 
+     #        From ICItemMapping t1, t_ICItem t2, t_Organization t3
+     #        Where t1.FItemID=t2.FItemID And t1.FPropertyID=1  And t2.FDeleted=0  
+     #        And t1.FCompanyID=t3.FItemID And t1.FCompanyID in (
+     #            select FItemID from t_Organization where fnumber like '%A.%' and fitemid<>'71086'
+     #        ) group by t2.FNumber Order by 物料代码")
+        @b = ActiveRecord::Base.connection.select_all("select fnumber as 物料代码 from t_icitem
+                where fdeleted=0 and (fnumber like '04.%' or fnumber like '05.%') Order by fnumber")
 		render :json =>{:data =>@b}
     end
 
@@ -147,14 +129,19 @@ class FnumberController < ApplicationController
 
     def fnumber
 		sql = params[:sql]
-        @custPerformanceChar = Cust_Performance_Char.find_by_sql("select 客户代码C, 物料代码, 
-            物料名称, 客户代码, 客户型号 from V_Fnumber where 物料代码 = '"+sql+"'")
-        render :json =>{:data =>@custPerformanceChar}
+        # @custPerformanceChar = Cust_Performance_Char.find_by_sql("select 客户代码C, 物料代码, 
+        #     物料名称, 客户代码, 客户型号 from V_Fnumber where 物料代码 = '"+sql+"'")
+        @custPerformanceCharA = Cust_Performance_Char.find_by_sql("select t1.f_102 AS 客户代码 ,t2.* 
+                from ( SELECT * from V_Fnumber where 物料代码 = '"+sql+"') t2
+                left join cust_performance_char t1 on t1.product_model_suffix = t2.f102")
+        @custPerformanceCharB = Cust_Performance_Char.find_by_sql("SELECT * 
+                from V_FnumberFMapName where 物料代码 = '"+sql+"' ")
+        render :json =>{:dataA =>@custPerformanceCharA, :dataB =>@custPerformanceCharB}
 	end
 
     def customerCode
         sql = params[:sql]
-        @fName = ActiveRecord::Base.connection.select_all("select FName as 客户名称C from t_Organization 
+        @fName = ActiveRecord::Base.connection.select_all("select FName as 客户名称 from t_Organization 
             where fnumber like '%A.%' and fitemid<>'71086' and fitemid<>'71087' and F_102 = '"+sql+"'")
         render :json =>{:data1 =>@fName}
     end
@@ -220,24 +207,31 @@ class FnumberController < ApplicationController
 
                                     custFnumber.fnumber = fnumber#产品代码
 
-                                    @custPerformanceChar = Cust_Performance_Char.find_by_sql("select 客户代码C, 物料代码, 
-                                        物料名称, 客户代码, 客户型号 from V_Fnumber where 物料代码 = '"+fnumber+"'")
+                                    @custPerformanceChar1 = Cust_Performance_Char.find_by_sql("SELECT * 
+                                        from V_FnumberFMapName where 物料代码 = '"+fnumber+"'")
+                                    if nil != @custPerformanceChar1 && @custPerformanceChar1.length > 0
+                                        if @custPerformanceChar1.length == 1
+                                            customer_code = @custPerformanceChar1[0].客户代码
+                                            custFnumber.product_model_zy = @custPerformanceChar1[0].物料名称#
+                                            custFnumber.customer_number = @custPerformanceChar1[0].客户代码#           
+                                            custFnumber.product_model = @custPerformanceChar1[0].客户型号#  
+                                        end
+                                    end
+                                    @custPerformanceChar = Cust_Performance_Char.find_by_sql("select t1.f_102 AS 客户代码 ,t2.* 
+                                        from ( SELECT * from V_Fnumber where 物料代码 = '"+fnumber+"') t2
+                                        left join cust_performance_char t1 on t1.product_model_suffix = t2.f102")
                                     if nil != @custPerformanceChar && @custPerformanceChar.length > 0
                                         if @custPerformanceChar.length == 1
-                                            customer_code = @custPerformanceChar[0].客户代码C
-
-                                            custFnumber.product_model_zy = @custPerformanceChar[0].物料名称#
-                                            custFnumber.customer_number = @custPerformanceChar[0].客户代码#           
-                                            custFnumber.product_model = @custPerformanceChar[0].客户型号#
+                                            customer_code = @custPerformanceChar[0].客户代码
 
                                             if(customer_code && (""!=customer_code))
                                                 custFnumber.customer_code = customer_code#
-                                                @fName = ActiveRecord::Base.connection.select_all("select FName as 客户名称C 
+                                                @fName = ActiveRecord::Base.connection.select_all("select FName as 客户名称
                                                     from t_Organization where fnumber like '%A.%' and fitemid<>'71086' 
                                                     and fitemid<>'71087' and F_102 = '"+customer_code+"'")
                                                 if nil != @fName[0] && @fName[0].length > 0
                                                     if @fName[0].length == 1
-                                                        custFnumber.customer_name = @fName[0]["客户名称C"]#
+                                                        custFnumber.customer_name = @fName[0]["客户名称"]#
                                                         custFnumber.save!
                                                     else
                                                         render :text  => "上传失败！客户代码#{customer_code}存在多个客户名称，请核实！";
@@ -249,7 +243,7 @@ class FnumberController < ApplicationController
                                         end
                                     else
                                         custFnumber.save!
-                                    end                                    
+                                    end                                  
                                 end
                             else
                                 #render :text  => '上传失败，产品代码不能为空！';

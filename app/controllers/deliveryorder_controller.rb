@@ -19,20 +19,21 @@ class DeliveryorderController < ApplicationController
                     sheet.add_row [nil]
                     sheet.add_row ['No', '合同号', '行号', '烽火物料号', '物料描述', '箱号', '每箱数量', 
                                     '总数量', '备注', '产品批号'], :style => center_header 
-                    inputsTbody=params[:inputsTbody]
+                    inputsTbody = params[:inputsTbody]
                     a = 0;
-                    if nil != inputsTbody
-                        a = inputsTbody.length/11
+                    if inputsTbody
+                        a = inputsTbody.length;
                     end
-                    for i in 0..a-1
+                    for j in 0..a-1
                         #0->4;1->5
-                        sheet.add_row [(1+i).to_s, inputsTbody[1+i*11], inputsTbody[2+i*11], 
-                            inputsTbody[3+i*11], inputsTbody[4+i*11], 
-                            inputsTbody[5+i*11]+"/"+inputsTbody[6+i*11], inputsTbody[7+i*11], 
-                            inputsTbody[8+i*11], inputsTbody[9+i*11],inputsTbody[10+i*11], ], :style => item
+                        tr = inputsTbody["#{j}"];
+                        sheet.add_row [(1+j).to_s, tr["hth"], tr["hh"], tr["wldm"], 
+                                        tr["wlms"], tr["xh"]+"/"+tr["xs"], tr["mxsl"], 
+                                        tr["zsl"], tr["bz"], tr["cpph"]
+                        ], :style => item
                     end
                     inputsTfoot=params[:inputsTfoot]
-                    sheet.add_row [nil,nil,nil,nil,"总箱数：",inputsTfoot[0],"合计：",inputsTfoot[1],nil,nil], :style => [footer,footer,footer,footer,footer,item,footer,item,footer,footer]
+                    sheet.add_row [nil,nil,nil,nil,"总箱数：",inputsTfoot["zxs"],"合计：",inputsTfoot["hj"],nil,nil], :style => [footer,footer,footer,footer,footer,item,footer,item,footer,footer]
                     sheet.add_row ["收货人：",nil,nil,nil,nil,nil,nil,nil,nil,nil], :style => footer  
                     sheet.add_row ["日期：",nil,nil,nil,nil,"日期：",nil,nil,nil,nil], :style => footer#[footer,nil,nil,nil,nil,footer]
                     #footer在a+7行

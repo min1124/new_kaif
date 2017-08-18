@@ -113,8 +113,9 @@ Rails.application.routes.draw do
 
   post 'deliveryorder/index' => 'deliveryorder#test_excel'
   post 'deliveryorder/ckdhChange' => 'deliveryorder#ckdhChange'
-  
 
+  post 'replace/index' => 'replace#index'
+  
   post 'cancel/index' => 'cancelgoods#index'
   post 'cancel/fbillno' => 'cancelgoods#fbillno'
   post 'cancel/new' => 'cancelgoods#new'
