@@ -327,7 +327,7 @@ class OrderController < ApplicationController
 		end
 	end
 
-	#$('#create')//大客户生成按钮
+	#$('#create2')//其他客户生成按钮
 	def edit
 		if power(T_K3_Auth, "t_order_auth")
 			id = params[:id]
@@ -423,12 +423,16 @@ class OrderController < ApplicationController
 	def ghdw
 		if power(T_K3_Auth, "t_order_auth")
 			ghdw = params[:ghdw]
-			conn = ActiveRecord::Base.connection()
-			sql = "select a.F_102,a.F_103,b.FName from t_Organization a 
-					left join t_item b on a.F_103 = b.fitemid
-					where a.fnumber ='"
-			@a = conn.select_all(sql+ghdw+"'")
-			render :json => @a
+			if ghdw&&(""!=ghdw)
+				conn = ActiveRecord::Base.connection()
+				sql = "select a.F_102,a.F_103,b.FName from t_Organization a 
+						left join t_item b on a.F_103 = b.fitemid
+						where a.fnumber ='"
+				@a = conn.select_all(sql+ghdw+"'")
+				render :json => @a
+			else
+				render :json => nil
+			end
 		else
 			return nopower!
 		end
@@ -594,7 +598,7 @@ class OrderController < ApplicationController
 		end
 	end
 
-	#$('#create2')//其它客户生成按钮
+	#$('#create')//大客户生成按钮
 	def edit_1
 		id = params[:id]#.split(' ')
 		type = params[:type]
@@ -647,7 +651,9 @@ class OrderController < ApplicationController
 		@b = conn.select_all("select FCurrencyID,FName from t_currency")#币别
 		# @c = conn.select_all("select FItemID,FNumber,FName from t_emp")#业务员
 		@c = conn.select_all("select FInterID,FName from t_SubMessage where ftypeid = 101")#销售方式
-		render :json => {:data1 =>arr1,:data2 =>arr2,:data3 => @ghhw,:data4 =>fbillno,:data5 =>@a,:data6 =>@b,:data7 =>@c, :data8 =>arr3}
+		#购货单位(已选)
+		@d = Order.find_by_sql("select * from v_ghdw where wldm = '"+fnumber[0]+"'")
+		render :json => {:data1 =>arr1,:data2 =>arr2,:data3 =>@ghhw,:data4 =>fbillno,:data5 =>@a,:data6 =>@b,:data7 =>@c,:data8 =>arr3,:data9 =>@d}
 	end
 
 	#其它客户//生成订单编号
