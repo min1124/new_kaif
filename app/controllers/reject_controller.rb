@@ -12,29 +12,29 @@ class RejectController < ApplicationController
             if djzt&&(""!=djzt)
                 case djzt
                     when "模块"
-                        sqlDjzt += " and 关闭标志 = 0 and 部门 like '模块%' and 报废部门负责人 is null";
+                        sqlDjzt += " and 关闭标志 = 0 and 部门 like '模块%' and 报废单状态 = '待部门负责人审核'";
                     when "器件"
-                        sqlDjzt += " and 关闭标志 = 0 and 部门 like '器件%' and 报废部门负责人 is null";
+                        sqlDjzt += " and 关闭标志 = 0 and 部门 like '器件%' and 报废单状态 = '待部门负责人审核'";
                     when "TO"
-                        sqlDjzt += " and 关闭标志 = 0 and 部门 like 'TO%' and 报废部门负责人 is null";
+                        sqlDjzt += " and 关闭标志 = 0 and 部门 like 'TO%' and 报废单状态 = '待部门负责人审核'";
                     when "管芯"
-                        sqlDjzt += " and 关闭标志 = 0 and 部门 like '管芯%' and 报废部门负责人 is null";
+                        sqlDjzt += " and 关闭标志 = 0 and 部门 like '管芯%' and 报废单状态 = '待部门负责人审核'";
                     when "仓库"
-                        sqlDjzt += " and 关闭标志 = 0 and 部门 like '仓库%' and 报废部门负责人 is null";
+                        sqlDjzt += " and 关闭标志 = 0 and 部门 like '仓库%' and 报废单状态 = '待部门负责人审核'";
                     when "待ME负责人审核"
-                        sqlDjzt += " and 关闭标志 = 0 and 报废部门负责人 is not null and ME负责人 is null";
+                        sqlDjzt += " and 关闭标志 = 0 and 报废单状态 = '待ME负责人审核'";
                     when "待品质负责人审核"
-                        sqlDjzt += " and 关闭标志 = 0 and ME负责人 is not null and 品质负责人 is null";
+                        sqlDjzt += " and 关闭标志 = 0 and 报废单状态 = '待品质负责人审核'";
                     when "待生管负责人审核"
-                        sqlDjzt += " and 关闭标志 = 0 and 品质负责人 is not null and 生产管理负责人 is null";
+                        sqlDjzt += " and 关闭标志 = 0 and 报废单状态 = '待生管负责人审核'";
                     when "待财务负责人审核"
-                        sqlDjzt += " and 关闭标志 = 0 and 生产管理负责人 is not null and 财务负责人 is null";
+                        sqlDjzt += " and 关闭标志 = 0 and 报废单状态 = '待财务负责人审核'";
                     when "待分管副总审核"
-                        sqlDjzt += " and 关闭标志 = 0 and 财务负责人 is not null and 分管副总 is null";
+                        sqlDjzt += " and 关闭标志 = 0 and 报废单状态 = '待分管副总审核'";
                     when "待仓管员确认"
-                        sqlDjzt += " and 关闭标志 = 0 and 分管副总 is not null and 仓管员 is null";
+                        sqlDjzt += " and 关闭标志 = 0 and 报废单状态 = '待仓管员审核'";
                     when "已审核完成"
-                        sqlDjzt += " and 关闭标志 = 0 and 仓管员 is not null";
+                        sqlDjzt += " and 关闭标志 = 0 and 报废单状态 = '已审核完成'";
                     when "已终止"
                         sqlDjzt += " and 关闭标志 = 1";
                 end
@@ -49,35 +49,22 @@ class RejectController < ApplicationController
                 end
             end
 
-            if bflbcx&&(""!=bflbcx)
-                case bflbcx
-                    when "成品报废"
-                        sqlDjzt += " and 报废类别 = '成品报废'";
-                    when "原材料报废"
-                        sqlDjzt += " and 报废类别 = '原材料报废'";
-                end
+            if bflbcx&&(""!=bflbcx)&&("all"!=bflbcx)
+                sqlDjzt += " and 报废类别 = '"+bflbcx+"'";
             end
 
-            if bfbmcx&&(""!=bfbmcx)
-                case bfbmcx
-                    when "模块"
-                        sqlDjzt += " and 部门 like '模块%'";
-                    when "器件"
-                        sqlDjzt += " and 部门 like '器件%'";
-                    when "TO"
-                        sqlDjzt += " and 部门 like 'TO%'";
-                    when "管芯"
-                        sqlDjzt += " and 部门 like '管芯%'";
-                end
+            if bfbmcx&&(""!=bfbmcx)&&("all"!=bfbmcx)
+                sqlDjzt += " and 部门 like '"+bfbmcx+"%'";
             end
             
     		if endtime&&starttime&&(""!=endtime)&&(""!=starttime)
     			@a=ActiveRecord::Base.connection.select_all("select * from v_Rejction 
-                    where 日期 >= '"+starttime+"' and 日期 <='"+endtime+"'" + sqlDjzt)
+                    where convert(varchar(10),日期,120) >= '"+starttime+"' 
+                    and convert(varchar(10),日期,120) <='"+endtime+"'" + sqlDjzt)
     			render :json =>{:data =>@a}
     		else
     			@a=ActiveRecord::Base.connection.select_all("select * from v_Rejction 
-                    where 日期 > dateadd(month,-1,getdate())" + sqlDjzt)
+                    where 日期 > dateadd(week,-1,getdate())" + sqlDjzt)
     			render :json =>{:data =>@a}
     		end
         else
@@ -90,6 +77,7 @@ class RejectController < ApplicationController
 		@a = ActiveRecord::Base.connection.select_all("exec PR_RejInfo "+ "'"+sql+"'")
 		render :json =>{:data =>@a}
 	end
+    
 	def Rejection
         conn = ActiveRecord::Base.connection()
 		name=params[:name]
@@ -107,6 +95,9 @@ class RejectController < ApplicationController
 		zzsl=params[:zzsl]
 		rksl=params[:rksl]
 		cpl=params[:cpl]
+
+        today = Time.new
+        rejDate = today.strftime("%Y-%m-%d %H:%M:%S")
 
         sqlInsert1 = "insert into t_Rejction(FBillNo,FBillClass,FProBillNo,FNumber,FName,FProducQty,
                     FStockQty,FPassRate,FRejKind,FRejClass,FBillMaker,FDate,FDeptNo) 
@@ -139,7 +130,7 @@ class RejectController < ApplicationController
                     elsif "false_nil" == bfjetotal
                         render :text =>"产品代码#{cpdm}的报废单价未维护！"
                     else
-                        sqlInsert3 = "insert into t_RejCheckFlu(FRejBillNo,RejAmount_1) values('"+djbh+"','"+bfjetotal.to_s+"')";
+                        sqlInsert3 = "insert into t_RejCheckFlu(FRejBillNo,RejAmount_1,RejDate,Status) values('"+djbh+"','"+bfjetotal.to_s+"','"+rejDate+"',0)";
                         a = inputs.length/6
                         if bmbz==@user.dept&&power(T_Reject_Auth, "create_auth")
                             ActiveRecord::Base.transaction do
@@ -214,7 +205,7 @@ class RejectController < ApplicationController
                     ActiveRecord::Base.transaction do
                         conn.insert(sqlInsert2[0,sqlInsert2.length-9]); 
                         conn.insert(sqlInsert1);
-                        sqlInsert3 = "insert into t_RejCheckFlu(FRejBillNo,RejAmount_1) values('" + djbh + "','" + bfjetotal.to_s + "')";
+                        sqlInsert3 = "insert into t_RejCheckFlu(FRejBillNo,RejAmount_1,RejDate,Status) values('" + djbh + "','" + bfjetotal.to_s + "','"+rejDate+"',0)";
                         conn.insert(sqlInsert3);  
                     end
                     render :text =>"保存成功"              
@@ -249,7 +240,7 @@ class RejectController < ApplicationController
 	def t_Rejection
 		sql = params[:sql]
 		@a = ActiveRecord::Base.connection.select_all("select 单据编号,单据类别,制单人,制造单号,产品代码,产品名称,制造单数量,入库数量,成品率,日期,部门,报废类型,报废类别,关闭标志 from v_Rejction where 单据编号 = '"+sql+"'")
-		@b = ActiveRecord::Base.connection.select_all("select * from t_RejCheckFlu where FRejBillNo = '"+sql+"'")
+		@b = ActiveRecord::Base.connection.select_all("select * from v_RejCheckFlu where FRejBillNo = '"+sql+"'")
 		render :json =>{:data1 =>@a,:data2 =>@b}
 	end
     def dept
@@ -273,16 +264,19 @@ class RejectController < ApplicationController
     	case type
     	when "bm"
     		if dept==sql&&power(T_Reject_Auth, "dept_auth")
+                today = Time.new
+                rejDeptDate = today.strftime("%Y-%m-%d %H:%M:%S")
+
                 djbhInsOrUpd = conn.select_value("select FRejBillNo from t_RejCheckFlu where FRejBillNo = '"+djbh+"'");
                 if djbhInsOrUpd&&(""!=djbhInsOrUpd)
-                    a="update t_RejCheckFlu set RejDeptManager = '"+@user.name+"' where FRejBillNo = '"+djbh+"'"
+                    a="update t_RejCheckFlu set RejDeptManager = '"+@user.name+"' , RejDeptDate = '"+rejDeptDate+"' , Status = 1 where FRejBillNo = '"+djbh+"'"
                     if conn.update(a)
                         render :text => "审核成功"
                     else
                         render :text => "审核失败"
                     end
                 else
-                    a="insert into t_RejCheckFlu (FRejBillNo,RejDeptManager) values('"+djbh+"','"+@user.name+"')"
+                    a="insert into t_RejCheckFlu (FRejBillNo,RejDeptManager,RejDate,rejDeptDate,Status) values('"+djbh+"','"+@user.name+"','"+rejDeptDate+"','"+rejDeptDate+"',1)"
                     if conn.insert(a)
                         render :text => "审核失败"
                     else
@@ -323,8 +317,11 @@ class RejectController < ApplicationController
     			return nopower!
     		end
     	when "sg"
+            today = Time.new
+            proDate = today.strftime("%Y-%m-%d %H:%M:%S")
+
     		if power(T_Reject_Auth, "sg_auth")
-    			a="update t_RejCheckFlu set ProManager = '"+@user.name+"',ProManagerNote = '"+params[:note]+"' where FRejBillNo = '"+djbh+"'"
+    			a="update t_RejCheckFlu set ProManager = '"+@user.name+"',ProManagerNote = '"+params[:note]+"', ProDate = '"+proDate+"', Status = 4 where FRejBillNo = '"+djbh+"'"
     			if conn.update(a)
                     render :text => "审核成功"
                 else
@@ -335,7 +332,11 @@ class RejectController < ApplicationController
     		end
     	when "cw"
     		if power(T_Reject_Auth, "cw_auth")
-    			a="update t_RejCheckFlu set FinManager = '"+@user.name+"',FinManagerNote = '"+params[:note]+"',RejAmount_1 = '"+params[:fin]+"' where FRejBillNo = '"+djbh+"'"
+
+                today = Time.new
+                finDate = today.strftime("%Y-%m-%d %H:%M:%S")
+
+    			a="update t_RejCheckFlu set FinManager = '"+@user.name+"',FinManagerNote = '"+params[:note]+"',RejAmount_1 = '"+params[:fin]+"', FinDate = '"+finDate+"', Status = 5 where FRejBillNo = '"+djbh+"'"
     			if conn.update(a)
                     render :text => "审核成功"
                 else
@@ -346,7 +347,11 @@ class RejectController < ApplicationController
     		end
     	when "fgfz"
     		if power(T_Reject_Auth, "fz_auth")
-    			a="update t_RejCheckFlu set ViseManager = '"+@user.name+"',ViseManagerNote = '"+params[:note]+"' where FRejBillNo = '"+djbh+"'"
+
+                today = Time.new
+                viseDate = today.strftime("%Y-%m-%d %H:%M:%S")
+
+    			a="update t_RejCheckFlu set ViseManager = '"+@user.name+"',ViseManagerNote = '"+params[:note]+"', ViseDate = '"+viseDate+"',Status = 6 where FRejBillNo = '"+djbh+"'"
     			if conn.update(a)
                     render :text => "审核成功"
                 else
@@ -357,7 +362,11 @@ class RejectController < ApplicationController
     		end   		
     	when "ck"
     		if power(T_Reject_Auth, "cgy_auth")
-    			a="update t_RejCheckFlu set WarehouseAdmin = '"+@user.name+"' where FRejBillNo = '"+djbh+"'"
+
+                today = Time.new
+                warehouseDate = today.strftime("%Y-%m-%d %H:%M:%S")
+
+    			a="update t_RejCheckFlu set WarehouseAdmin = '"+@user.name+"', WarehouseDate = '"+warehouseDate+"',Status = 7 where FRejBillNo = '"+djbh+"'"
     			if conn.update(a)
                     render :text => "审核成功"
                 else
@@ -433,14 +442,99 @@ class RejectController < ApplicationController
             return nopower!
         end
   	end
-	
+
+    def plshSjJy
+        name = params[:name]
+        fbillno = params[:fbillno]
+        status = params[:status]
+
+        conn = ActiveRecord::Base.connection()
+        sql = "select * from v_Rejction where (报废单状态 <> '"+status+"' or 报废金额 >3000 or 关闭标志 = 1) and 单据编号 in ("+fbillno+")";
+        @reject =  conn.update(sql)
+        if nil != @reject && nil != @reject[0] && @reject[0].length > 0
+            render :text => 0
+        else
+            render :text => 1
+        end
+    end
+
+    def sgPlshQx #生管权限
+        if power(T_Reject_Auth, "sg_auth")
+            render :text => 0
+        else
+            return nopower!
+        end
+    end
+
+    def sgPlsh
+        name = params[:name]
+        @user = TUser.find_by_name(name)
+        if power(T_Reject_Auth, "sg_auth")
+            fbillno = params[:fbillno]
+
+            today = Time.new
+            proDate = today.strftime("%Y-%m-%d %H:%M:%S")
+
+            conn = ActiveRecord::Base.connection()
+            sql = "update t_RejCheckFlu set ProManager = '"+@user.name+"',ProManagerNote = '"+params[:sgyj]+"', ProDate = '"+proDate+"', Status = 4 where FRejBillNo in ("+fbillno+")";
+            if conn.update(sql)
+                render :text => "审核成功"
+            else
+                render :text => "审核失败"
+            end
+        else
+            return nopower!
+        end     
+    end
+
+    def cwPlshQx #财务权限
+        if power(T_Reject_Auth, "cw_auth")
+            render :text => 0
+        else
+            return nopower!
+        end
+    end
+
+    def cwPlsh
+        name = params[:name]
+        @user = TUser.find_by_name(name)
+        if power(T_Reject_Auth, "cw_auth")
+            fbillno = params[:fbillno]
+
+            today = Time.new
+            finDate = today.strftime("%Y-%m-%d %H:%M:%S")
+
+            conn = ActiveRecord::Base.connection()
+            sql = "update t_RejCheckFlu set FinManager = '"+@user.name+"',FinManagerNote = '"+params[:cwyj]+"', FinDate = '"+finDate+"', Status = 5 where FRejBillNo in ("+fbillno+")";
+            if conn.update(sql)
+                render :text => "审核成功"
+            else
+                render :text => "审核失败"
+            end
+        else
+            return nopower!
+        end     
+    end
+
+    def fgfzPlshQx #分管副总权限
+        if power(T_Reject_Auth, "fz_auth")
+            render :text => 0
+        else
+            return nopower!
+        end
+    end
+
     def plsh
         name = params[:name]
         @user = TUser.find_by_name(name)
         if power(T_Reject_Auth, "fz_auth")
             fbillno = params[:fbillno]
+
+            today = Time.new
+            viseDate = today.strftime("%Y-%m-%d %H:%M:%S")
+
             conn = ActiveRecord::Base.connection()
-            sql = "update t_RejCheckFlu set ViseManager = '"+@user.name+"',ViseManagerNote = '"+params[:fgfzyj]+"' where FRejBillNo in ("+fbillno+")";
+            sql = "update t_RejCheckFlu set ViseManager = '"+@user.name+"',ViseManagerNote = '"+params[:fgfzyj]+"', ViseDate = '"+viseDate+"', Status = 6 where FRejBillNo in ("+fbillno+")";
             if conn.update(sql)
                 render :text => "审核成功"
             else
@@ -453,8 +547,11 @@ class RejectController < ApplicationController
 
     def meSh(meManager, meManagerNote, djbh, auth)
         if power(T_Reject_Auth, auth)
+            today = Time.new
+            meDate = today.strftime("%Y-%m-%d %H:%M:%S")
+
             conn = ActiveRecord::Base.connection()
-            a="update t_RejCheckFlu set MEManager = '"+meManager+"',MEManagerNote = '"+meManagerNote+"' where FRejBillNo = '"+djbh+"'"
+            a="update t_RejCheckFlu set MEManager = '"+meManager+"',MEManagerNote = '"+meManagerNote+"',MeDate = '"+meDate+"',Status = 2 where FRejBillNo = '"+djbh+"'"
             if conn.update(a)
                 render :text => "审核成功"
             else
@@ -466,9 +563,12 @@ class RejectController < ApplicationController
     end
 
     def pzSh(qltManager, qltManagerNote, djbh, auth)
+        today = Time.new
+        qltDate = today.strftime("%Y-%m-%d %H:%M:%S")
+
         if power(T_Reject_Auth, auth)
             conn = ActiveRecord::Base.connection()
-            a="update t_RejCheckFlu set QltManager = '"+qltManager+"',QltManagerNote = '"+qltManagerNote+"' where FRejBillNo = '"+djbh+"'"
+            a="update t_RejCheckFlu set QltManager = '"+qltManager+"',QltManagerNote = '"+qltManagerNote+"', QltDate = '"+qltDate+"',Status = 3 where FRejBillNo = '"+djbh+"'"
             if conn.update(a)
                 render :text => "审核成功"
             else

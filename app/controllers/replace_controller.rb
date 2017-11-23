@@ -1,8 +1,7 @@
 class ReplaceController < ApplicationController
     before_action :authentication
 	def index
-        name = params[:name];
-        if "程燕"==name || "test"==name
+        if power(T_K3_Auth, "t_replace_auth")
     		zldm = params[:zldm]
             tdldm = params[:tdldm]
             

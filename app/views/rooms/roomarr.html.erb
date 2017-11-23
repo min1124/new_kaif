@@ -1,0 +1,58 @@
+<div class="domitarr">
+	<div class="arrange">
+		<label for="">宿舍位置</label><select name="" id=""></select>
+		<label for="">宿舍楼层</label><select name="" id=""></select>
+		<label for="">宿舍房间</label><select name="" id=""></select>
+	</div>
+	<div class="domituser">
+	<h2>未分配宿舍员工</h2>
+		<table class="table table-bordered">
+		<thead> 
+			<tr>
+				<th>姓名</th>
+				<th>工号</th>
+				<th>部门</th>
+				<th>性别</th>
+			</tr>
+		</thead> 
+		<tbody>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+		</tbody>		
+		</table>
+	</div>
+	
+
+	<div class="room">
+	<h2>未入住宿舍</h2>
+		<table class="table table-bordered">
+			<thead> 
+				<tr>
+					<th>宿舍位置</th>
+					<th>宿舍类型</th>
+					<th>宿舍房间</th>
+					<th>宿舍床位</th>
+					<th>分配员工</th>
+				</tr>
+			</thead> 			
+			<tbody>
+				<% @beds.each do |t| %>
+				<tr>
+					<td><%=t.domit_name%></td>
+					<td><%=t.room_type%></td>
+					<td><%=t.room_no%></td>
+					<td><%=t.bed_no%></td>
+					<td></td>
+				</tr>
+				<% end %>
+			</tbody>					
+		</table>
+		</div>
+		
+	
+</div>
+

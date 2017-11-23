@@ -1,0 +1,96 @@
+<div class="arrange">
+		<label for="">宿舍位置</label><select name="" id=""></select>
+    <label for="">房间类别</label><select name="" id=""></select>
+		<label for="">房间楼层</label><select name="" id=""></select>
+		<label for="">房间号</label><select name="" id=""></select>
+</div>
+
+<div class="edit">
+  <h3 style="float: left;margin-left: 1%; ">宿舍房间</h3>
+	<div style="float: right;">
+		<button class='btn btn-success' id="domitadd">新增</button>
+	</div>
+</div>
+<div>    
+        <table class="table table-bordered" id="domitindex" style="text-align: center;">
+			<thead>
+				<tr>
+  				<th>房间位置</th>
+  				<th>房间楼层</th>
+  				<th>房间号</th>
+  				<th>床位数</th>
+          <th>操作</th>
+			  </tr>
+			</thead>
+      <tbody>
+      <% @rooms.each do |t| %>
+  			<tr id=<%=t.id%>>
+  		    <td></td>
+          <td></td>
+          <td><%=t.room_no %></td>
+          <td><%=t.bed_count %></td>
+          <td><%= link_to "修改", roomedit_path(t),:class => 'btn btn-danger btn-xs' %>&nbsp<%= link_to "删除", roomdelete_path(t), remote: true, :data => { :confirm => "点击确定继续" }, :class => 'btn btn-danger btn-xs' %></td>
+  			</tr>
+      <% end %>
+      </tbody>
+      </table>
+      <%= will_paginate(@rooms) %>
+</div>
+
+
+<div id="dialog"> 
+<p class="close"><a href="#" onclick="closeBg();">关闭</a></p> 
+<div class="form">
+
+    <h1>房间新增</h1>
+
+    <%= form_for(:room,remote: true, html: { id: 'domit_add' } ) do |f| %>
+    <%= tag(:input, :type => "hidden", :name =>request_forgery_protection_token.to_s, 
+    :value =>form_authenticity_token) %>  
+      <div >
+        <label ><span>宿舍位置</span></label>
+		<%=f.select :domit_no,@domitlocate.collect{|t| [t.domit_name, t.id]},{}, { :onchange=>'locate()' }%>
+      </div>
+     
+      <div>
+      	<label ><span>房间编号</span></label>
+      	<%= f.text_field :room_no,:id=>"room_no", :placeholder => "例如:301",:class => "text" , :onblur=>"text(id)"%>
+      </div>
+      <div>
+      	<label ><span>房间类别</span></label>
+      	<%= f.select :room_type, { :男 => '1', :女 => '0' } %>
+      </div>
+      <div>
+      	<label ><span>床位数量</span></label>
+      	<%= f.text_field :bed_count,:id=>"bed_count", :placeholder => "床位数量",:class => "text" , :onblur=>"text(id)"%>
+      </div>
+      <div>
+      	<%= f.submit "提交", class: "btn btn-success",onclick: "domitadd()"%>
+      </div>
+      
+    <% end %>
+</div>
+</div> 
+</div> 
+
+
+<script type="text/javascript"> 
+//显示灰色 jQuery 遮罩层 
+$('#domitadd').click(function(){
+
+var bh = $("body").height(); 
+var bw = $("body").width(); 
+$("#fullbg").css({ 
+height:bh, 
+width:bw, 
+display:"block" 
+}); 
+$("#dialog").show(); 
+} )
+//关闭灰色 jQuery 遮罩 
+function closeBg() { 
+$("#fullbg,#dialog").hide(); 
+} 
+
+
+</script>

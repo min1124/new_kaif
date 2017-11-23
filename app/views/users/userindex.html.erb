@@ -1,0 +1,43 @@
+<div class="arrange">
+	<form action="">
+		<label for="">员工姓名</label><input class="text"  />
+		<label for="">员工工号</label><input class="text"  />
+		<input class="btn btn-info" name="commit" type="submit" value="查询" />
+	</form>		
+</div>
+<div class="edit">
+    <div>
+    	<button class="btn btn-success"><a href="/users/new" style='color:white;'>新增</button>
+    	<button class="btn btn-success"><a href="" style='color:white;'>修改</a></button>
+    	<button class="btn btn-success"><a href="" style='color:white;'>删除</a></button>
+    </div>
+</div>
+<div class="userindex">    
+        <table class="table table-bordered">
+			<thead>
+				<tr>
+				<th>姓名</th>
+				<th>邮箱</th>
+				<th>性别</th>
+				<th>工号</th>
+				<th>部门</th>
+				<th>操作</th>
+			    </tr>
+			</thead>
+			<% @users.each do |t| %>
+				<tr>
+			    <td><%= t.name %></td>
+	            <td><%= t.email %></td>
+	            <td><%= t.gender %></td>
+	            <td><%= t.work_no %></td>
+	            <td><%= t.dept_no %></td>
+	            <td><button>删除</button> <button>编辑</button></td>
+				</tr>
+			<% end %>
+        </table>
+</div>
+<div>
+	<form action="">
+		
+	</form>
+</div>

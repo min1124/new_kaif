@@ -19,6 +19,21 @@ class AuthController < ApplicationController
 		render :json =>{:data => @reject}
 	end
 
+	def fnumber
+		@fnumber = T_Fnumber_Auth.all
+		render :json =>{:data => @fnumber}
+	end
+
+	def fnquery
+		@fnquery = T_Fnquery_Auth.all
+		render :json =>{:data => @fnquery}
+	end
+
+	def fnupdate
+		@fnupdate = T_Fnupdate_Auth.all
+		render :json =>{:data => @fnupdate}
+	end
+
 	def addk3
 		@k3 = T_K3_Auth.new
 	end

@@ -1,8 +1,8 @@
 class FnumberController < ApplicationController
 	before_action :authentication, only:[:index,:save,:upd,:updSave,:del,:f102,:getfnumber,:fnumber,:productLine ]
 	def index
-		if power(T_K3_Auth, "t_fnumber_auth")
-			@fnumber =  Cust_Fnumber.all
+		if power(T_K3_Auth, "t_fnumberhw_auth")
+			@fnumber =  Cust_Fnumber.find_by_sql("select * from cust_fnumbers where customer_code like 'HN-02%'")
 			render :json => {:data =>@fnumber} 
 		else
 			return nopower!
@@ -11,7 +11,7 @@ class FnumberController < ApplicationController
 
 	def save
 		name = params[:name];
-        if power(T_K3_Auth, "t_fnumber_auth")
+        if power(T_K3_Auth, "t_fnumberhw_auth")
         	source = params[:source]
         	sourceCode = params[:sourceCode].lstrip.rstrip
         	customerCode = params[:customerCode].lstrip.rstrip
@@ -63,11 +63,35 @@ class FnumberController < ApplicationController
 	end
 
 	def updSave
-		if power(T_K3_Auth, "t_fnumber_auth")
+		if power(T_K3_Auth, "t_fnumberhw_auth")
 			id = params[:id]
             custFnumber = Cust_Fnumber.find(id)
 
+            cust_Fnumber_Rec = Cust_Fnumber_Rec.new
+            cust_Fnumber_Rec.ID = custFnumber.ID
+            cust_Fnumber_Rec.source = custFnumber.source
+            cust_Fnumber_Rec.source_code = custFnumber.source_code
+            cust_Fnumber_Rec.customer_code = custFnumber.customer_code
+            cust_Fnumber_Rec.customer_name = custFnumber.customer_name
+            cust_Fnumber_Rec.fnumber = custFnumber.fnumber
+            cust_Fnumber_Rec.product_model_zy = custFnumber.product_model_zy
+            cust_Fnumber_Rec.customer_number = custFnumber.customer_number
+            cust_Fnumber_Rec.product_model = custFnumber.product_model
+            cust_Fnumber_Rec.product_line = custFnumber.product_line
+            cust_Fnumber_Rec.product_status = custFnumber.product_status
+            cust_Fnumber_Rec.pcn_flag = custFnumber.pcn_flag
+            cust_Fnumber_Rec.pcn_date = custFnumber.pcn_date
+            cust_Fnumber_Rec.shipping_or_not = custFnumber.shipping_or_not
+            cust_Fnumber_Rec.cost_priority = custFnumber.cost_priority
+            cust_Fnumber_Rec.update_date1 = custFnumber.update_date1
+            cust_Fnumber_Rec.F11 = custFnumber.F11
+            cust_Fnumber_Rec.kcxhjz_date = custFnumber.kcxhjz_date
+            cust_Fnumber_Rec.note = custFnumber.note
+            cust_Fnumber_Rec.save
+
 			productStatus = params[:productStatus]
+            pcnFlag = params[:pcnFlag]
+            pcnDate = params[:pcnDate]
             shippingOrNot = params[:shippingOrNot]
             costPriority = params[:costPriority]
             f11 = params[:f11]
@@ -75,6 +99,8 @@ class FnumberController < ApplicationController
             note = params[:note]
 
             custFnumber.product_status = productStatus
+            custFnumber.pcn_flag = pcnFlag
+            custFnumber.pcn_date = pcnDate
             custFnumber.shipping_or_not = shippingOrNot
             custFnumber.cost_priority = costPriority
             today = Time.new
@@ -83,9 +109,9 @@ class FnumberController < ApplicationController
             custFnumber.kcxhjz_date = kcxhjzDate
             custFnumber.note = note
         	if custFnumber.save!
-            	render :text => "修改成功";
+            	render :text => 0;
         	else 
-            	render :text => "保存失败";
+            	render :text => 1;
             end
         else
         	return nopower!;
@@ -93,7 +119,7 @@ class FnumberController < ApplicationController
 	end
 
 	def del
-		if power(T_K3_Auth, "t_fnumber_auth")
+		if power(T_K3_Auth, "t_fnumberhw_auth")
 			id=params[:id]
 			if Cust_Fnumber.delete(id)
                 render :text => "删除成功";
@@ -155,8 +181,125 @@ class FnumberController < ApplicationController
     def updQuery
         sqlId = params[:sqlId]
         sqlFnumber = params[:sqlFnumber]
-        @custFnumberRec = Cust_Fnumber_Rec.where("ID = '#{sqlId}' and fnumber = '#{sqlFnumber}'").order("ID_Cust DESC")
+        @custFnumberRec = Cust_Fnumber_Rec.where(ID:sqlId,fnumber:sqlFnumber).order("ID_Cust DESC")
         render :json =>{:data =>@custFnumberRec}
+    end
+
+    def fnumberselect
+        customer_number = params[:customer_number]
+        # shipping_or_not = 'Y' and
+        @fnumbers = Cust_Fnumber.find_by_sql("select fnumber from cust_fnumbers where customer_number = '"+customer_number+"'")
+        render :json =>{:data =>@fnumbers}
+    end
+
+    def fnumberselchange
+        name = params[:name]
+        customer_number = params[:customer_number]
+        fnumberSelect = params[:fnumberSelect]
+        productModelHw = params[:productModelHw]
+        fnumberDescHw = params[:fnumberDescHw]
+        keyBomFnumber = params[:keyBomFnumber]
+        
+        @fnumbers = Cust_Fnumber.where(customer_number:customer_number)
+        for i in 0..@fnumbers.length-1
+            @fnumbers[i].fnumber_hw = fnumberSelect
+            @fnumbers[i].fnumber_desc = fnumberDescHw
+            @fnumbers[i].key_fnumbers = keyBomFnumber
+            @fnumbers[i].save
+        end
+
+        keyfnumbers = Array.new 
+        if(keyBomFnumber && (""!=keyBomFnumber))
+            keyfnumbers = keyBomFnumber.split(',')
+        end
+
+        @keyfnumbersSelect = Bom_Key_Fnumbers.where(customer_number:customer_number,close_flag:"Y")
+        if nil == @keyfnumbersSelect || @keyfnumbersSelect.length == 0
+            createBomKey(name,customer_number,fnumberSelect,productModelHw,keyfnumbers)
+        elsif @keyfnumbersSelect[0].fnumber_hw != fnumberSelect
+            for i in 0..@keyfnumbersSelect.length-1
+                @keyfnumbersSelect[i].close_flag = "N"
+                @keyfnumbersSelect[i].save
+            end
+            createBomKey(name,customer_number,fnumberSelect,productModelHw,keyfnumbers)
+        else
+            @bom_key_fnumbers = Bom_Key_Fnumbers.where(customer_number:customer_number,
+                close_flag:"Y").pluck(:key_fnumber).uniq()
+            old_bom_key = @bom_key_fnumbers - keyfnumbers
+            new_bom_key = keyfnumbers - @bom_key_fnumbers
+
+            puts "old_bom_key=#{old_bom_key}"
+            @bom_key_fnumbers1 = Bom_Key_Fnumbers.where(customer_number: customer_number,close_flag: "Y",key_fnumber: old_bom_key)
+            for i in 0..@bom_key_fnumbers1.length-1
+                @bom_key_fnumbers1[i].close_flag = "N"
+                @bom_key_fnumbers1[i].save
+            end
+            puts "new_bom_key=#{new_bom_key}"
+            createBomKey(name,customer_number,fnumberSelect,productModelHw,new_bom_key)
+        end
+        render :text => 0
+    end
+
+    def createBomKey(name,customer_number,fnumberSelect,productModelHw,keyfnumbers)
+        @fnumbers = Cust_Fnumber.find_by_sql("select fnumber 
+            from cust_fnumbers where shipping_or_not = 'Y' 
+            and customer_number = '"+customer_number+"'")
+        today = Time.new
+        for i in 0..@fnumbers.length-1
+            for j in 0..keyfnumbers.length-1
+                bom_Key_Fnumbers = Bom_Key_Fnumbers.new
+                bom_Key_Fnumbers.customer_number = customer_number 
+                bom_Key_Fnumbers.fnumber_hw = fnumberSelect
+                bom_Key_Fnumbers.fnumber_y = @fnumbers[i].fnumber
+                bom_Key_Fnumbers.product_model = productModelHw
+                bom_Key_Fnumbers.key_fnumber = keyfnumbers[j]
+
+                if @fnumbers[i].fnumber == fnumberSelect
+                    bom_Key_Fnumbers.key_fnumber_sel = keyfnumbers[j]
+                    @b = Bom_Key_Fnumbers.find_by_sql("exec KeyBomFnumbersChildWeight "+ "'"+fnumberSelect+"','"+keyfnumbers[j]+"'") 
+                    if nil != @b && @b.length > 0
+                        bom_Key_Fnumbers.child_weitht = @b[0].单位用量
+                    end
+                end
+
+                @key_Fnumbers = Key_Fnumbers.where(fnumber:keyfnumbers[j])
+                if nil != @key_Fnumbers && @key_Fnumbers.length > 0
+                    bom_Key_Fnumbers.product_line = @key_Fnumbers[0].category
+                end
+
+                @fName = ActiveRecord::Base.connection.select_all("SELECT FName AS 物料名称 
+                    FROM t_ICItem WHERE FDeleted = 0 and FNumber  = '"+keyfnumbers[j]+"'")
+                if nil != @fName && @fName[0].length >0
+                    bom_Key_Fnumbers.fnumber_desc = @fName[0]['物料名称']
+                end
+                bom_Key_Fnumbers.create_date = today.strftime("%Y-%m-%d %H:%M:%S")
+                bom_Key_Fnumbers.create_emp = name
+                bom_Key_Fnumbers.close_flag = "Y"
+                bom_Key_Fnumbers.save
+            end
+        end
+    end
+
+    def fnumberdesc
+        fnumberSelHw = params[:fnumberSelHw]
+        @fnumbersHw = Cust_Fnumber.find_by_sql("select customer_code,customer_number from cust_fnumbers where fnumber = '"+fnumberSelHw+"'")
+        customer_code = @fnumbersHw[0].customer_code;
+        customer_number = @fnumbersHw[0].customer_number;
+        
+        @fnumber_desc = Fnumber_Desc.where(customer_number:customer_number,customer_code:customer_code)
+        # if nil != @fnumber_desc && @fnumber_desc.length > 0
+        #     fnumber_desc = @fnumber_desc[0].fnumber_desc
+        # else
+        #     fnumber_desc = ""
+        # end
+        #@fnumber_desc = Fnumber_Desc.where(:customer_number => customer_number,:customer_code => customer_code)
+        render :json => {:data =>@fnumber_desc}
+    end
+
+    def keyfnumber
+        fnumber = params[:fnumber]
+        @fnumber_desc = Key_Fnumbers.find_by_sql("exec KeyBomFnumbersKey '"+fnumber+"'")
+        render :json => {:data =>@fnumber_desc}
     end
 
     def upload
@@ -207,46 +350,57 @@ class FnumberController < ApplicationController
 
                                     custFnumber.fnumber = fnumber#产品代码
 
-                                    @custPerformanceChar1 = Cust_Performance_Char.find_by_sql("SELECT * 
-                                        from V_FnumberFMapName where 物料代码 = '"+fnumber+"'")
-                                    if nil != @custPerformanceChar1 && @custPerformanceChar1.length > 0
-                                        if @custPerformanceChar1.length == 1
-                                            customer_code = @custPerformanceChar1[0].客户代码
-                                            custFnumber.product_model_zy = @custPerformanceChar1[0].物料名称#
-                                            custFnumber.customer_number = @custPerformanceChar1[0].客户代码#           
-                                            custFnumber.product_model = @custPerformanceChar1[0].客户型号#  
-                                        end
-                                    end
                                     @custPerformanceChar = Cust_Performance_Char.find_by_sql("select t1.f_102 AS 客户代码 ,t2.* 
                                         from ( SELECT * from V_Fnumber where 物料代码 = '"+fnumber+"') t2
                                         left join cust_performance_char t1 on t1.product_model_suffix = t2.f102")
                                     if nil != @custPerformanceChar && @custPerformanceChar.length > 0
                                         if @custPerformanceChar.length == 1
-                                            customer_code = @custPerformanceChar[0].客户代码
+                                            custFnumber.product_model_zy = @custPerformanceChar[0].物料名称#
 
-                                            if(customer_code && (""!=customer_code))
+                                            customer_code = @custPerformanceChar[0].客户代码
+                                            if(customer_code && (""!=customer_code) && ("我司标准产"!=customer_code))
                                                 custFnumber.customer_code = customer_code#
-                                                @fName = ActiveRecord::Base.connection.select_all("select FName as 客户名称
-                                                    from t_Organization where fnumber like '%A.%' and fitemid<>'71086' 
-                                                    and fitemid<>'71087' and F_102 = '"+customer_code+"'")
-                                                if nil != @fName[0] && @fName[0].length > 0
-                                                    if @fName[0].length == 1
-                                                        custFnumber.customer_name = @fName[0]["客户名称"]#
+
+                                                @fName = Cust_Performance_Char.find_by_sql("select * from V_Organization 
+                                                    where F_102 = '"+customer_code+"'")
+                                                if nil != @fName && @fName.length > 0
+                                                    if @fName.length == 1
+                                                        fitemid = @fName[0].客户内码
+                                                        if(fitemid && (""!=fitemid))
+                                                            @custPerformanceChar1 = Cust_Performance_Char.find_by_sql("SELECT * 
+                                                                from V_FnumberFMapName where 物料代码 = '"+fnumber+"' and 客户内码 = '"+fitemid.to_s+"'")
+                                                            if nil != @custPerformanceChar1 && @custPerformanceChar1.length > 0
+                                                                if @custPerformanceChar1.length == 1
+                                                                    custFnumber.customer_number = @custPerformanceChar1[0].客户代码#           
+                                                                    custFnumber.product_model = @custPerformanceChar1[0].客户型号#  
+                                                                else
+                                                                    custFnumber.save!
+                                                                end
+                                                            else
+                                                                custFnumber.save!
+                                                            end
+                                                        else
+                                                            custFnumber.save!
+                                                        end
+                                                        custFnumber.customer_name = @fName[0].客户名称#
                                                         custFnumber.save!
                                                     else
-                                                        render :text  => "上传失败！客户代码#{customer_code}存在多个客户名称，请核实！";
+                                                        custFnumber.save!
                                                     end
+                                                else
+                                                    custFnumber.save!
                                                 end
                                             else
                                                 custFnumber.save!
                                             end
+                                        else
+                                            custFnumber.save!
                                         end
                                     else
                                         custFnumber.save!
                                     end                                  
                                 end
                             else
-                                #render :text  => '上传失败，产品代码不能为空！';
                             end                          
                         end
                     end

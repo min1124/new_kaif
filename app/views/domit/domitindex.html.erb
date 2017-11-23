@@ -1,0 +1,78 @@
+<div class="edit">
+	<div>
+		<button class='btn btn-success' id="domitadd">新增</button>
+    <button class="btn btn-success"><a href="" style='color:white;'>修改</a></button>
+    <button class="btn btn-success"><a href="" style='color:white;'>删除</a></button>
+	</div>
+</div>
+<div class="domitindex">    
+        <table class="table table-bordered">
+      			<thead>
+      				<tr>
+        				<th>宿舍名称</th>
+        				<th>宿舍位置</th>
+        				<th>房间数</th>
+        				<th>床位数</th>
+      			  </tr>
+              <% @domitlocates.each do |t| %>
+                <tr>
+                    <td><%=t.domit_name %></td>
+                    <td><%=t.domit_adress %></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+              <% end %>
+      			</thead>
+            
+        </table>
+</div>
+
+<div class="mesg">
+  
+</div>
+
+<div id="dialog"> 
+<p class="close"><a href="#" onclick="closeBg();">关闭</a></p> 
+<div class="form">
+
+    <h1>宿舍新增</h1>
+
+    <%= form_for(:domit,remote: true, html: { id: 'domit_add' } ) do |f| %>
+    
+      <div>
+            <label ><span>宿舍名称</span></label>
+        <%= f.text_field :domit_name,:id=>"domit_name", :placeholder => "宿舍名称",:class => "text" , :onblur=>"text(id)"%>
+      </div>
+      <div>
+            <label ><span>详细地址</span></label>
+        <%= f.text_field :domit_adress,:id=>"domit_adress", :placeholder => "详细地址",:class => "text", :onblur=>"text(id)"%>
+      </div>
+      <div style="position: center">
+          <%= f.submit "提交", class: "btn btn-success",onclick: "domitadd()"%>
+      </div>
+    <% end %>
+</div>
+</div> 
+</div> 
+
+
+<script type="text/javascript"> 
+//显示灰色 jQuery 遮罩层 
+$('#domitadd').click(function(){
+
+var bh = $("body").height(); 
+var bw = $("body").width(); 
+$("#fullbg").css({ 
+height:bh, 
+width:bw, 
+display:"block" 
+}); 
+$("#dialog").show(); 
+} )
+//关闭灰色 jQuery 遮罩 
+function closeBg() { 
+$("#fullbg,#dialog").hide(); 
+} 
+
+
+</script>

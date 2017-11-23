@@ -1,0 +1,1 @@
+$("#domitindex tbody").append('<tr id=<%=@domit.id%>><td></td><td></td><td><%=@domit.room_no %></td><td><%=@domit.bed_count %></td><td><%= link_to "修改", roomedit_path(@domit),:class => 'btn btn-danger btn-xs' %>&nbsp<%= link_to "删除", roomdelete_path(@domit), remote: true, :data => { :confirm => "点击确定继续" }, :class => 'btn btn-danger btn-xs' %></td></tr>');

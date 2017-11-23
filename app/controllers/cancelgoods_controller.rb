@@ -161,7 +161,7 @@ class CancelgoodsController < ApplicationController
 			now = Time.new.strftime("%Y%m")
 			if time
 				a = time.split('-')[0]
-				b =  time.split('-')[1] 
+				b = time.split('-')[1] 
 			else
 				a = now[0,4]
 				b = now[4,2] 

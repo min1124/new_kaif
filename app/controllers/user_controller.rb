@@ -11,28 +11,46 @@ class UserController < ApplicationController
 		@icmo = T_Icmo_Auth.find_by_name(name)
 		@receive = T_Receive_Auth.find_by_name(name)
 		@reject = T_Reject_Auth.find_by_name(name)
+		@rejectyf = T_Rejectyf_Auth.find_by_name(name)
+		@rejectkc = T_Rejectkc_Auth.find_by_name(name)
 		@bom = T_Bom_Auth.find_by_name(name)
 		@hj = T_Hj_Auth.find_by_name(name)
 		@change = T_Change_Auth.find_by_name(name)
-		render :json =>{:user =>@user, :k3 =>@K3, :icmo =>@icmo, :receive =>@receive, :reject =>@reject, :bom =>@bom, :hj =>@hj, :change => @change}
+		@fnumber = T_Fnumber_Auth.find_by_name(name)
+		@fnquery = T_Fnquery_Auth.find_by_name(name)
+		@fnupdate = T_Fnupdate_Auth.find_by_name(name)
+		render :json =>{:user =>@user, :k3 =>@K3, :icmo =>@icmo, :receive =>@receive, 
+			:reject =>@reject, :rejectyf =>@rejectyf, :rejectkc =>@rejectkc, 
+			:bom =>@bom, :hj =>@hj, :change => @change, :fnumber => @fnumber, 
+			:fnquery => @fnquery, :fnupdate => @fnupdate}
 	end
 
 	def update_power
 		k3 = params[:k3]
 		recieve = params[:recieve]
 		reject = params[:reject]
+		rejectyf = params[:rejectyf]
+		rejectkc = params[:rejectkc]
 		icmo = params[:icmo]
 		bom = params[:bom]
 		hj = params[:hj]
 		change = params[:change]
+		fnumber = params[:fnumber]
+		fnquery = params[:fnquery]
+		fnupdate = params[:fnupdate]
 		ActiveRecord::Base.transaction do
 			auth(T_K3_Auth,k3)
 			auth(T_Reject_Auth,reject)
+			auth(T_Rejectyf_Auth,rejectyf)
+			auth(T_Rejectkc_Auth,rejectkc)
 			auth(T_Icmo_Auth,icmo)
 			auth(T_Receive_Auth,recieve)
 			auth(T_Bom_Auth,bom)
 			auth(T_Hj_Auth,hj)
 			auth(T_Change_Auth,change)
+			auth(T_Fnumber_Auth,fnumber)
+			auth(T_Fnquery_Auth,fnquery)
+			auth(T_Fnupdate_Auth,fnupdate)
 			@user = TUser.find_by_name(params[:name])
 			@user.power_flag = 0
 			@user.save
@@ -48,6 +66,9 @@ class UserController < ApplicationController
 		bom = params[:bom]
 		hj = params[:hj]
 		change = params[:change]
+		fnumber = params[:fnumber]
+		fnquery = params[:fnquery]
+		fnupdate = params[:fnupdate]
 		ActiveRecord::Base.transaction do
 			auth(T_K3_Auth,k3)
 			auth(T_Reject_Auth,reject)
@@ -56,6 +77,9 @@ class UserController < ApplicationController
 			auth(T_Bom_Auth,bom)
 			auth(T_Hj_Auth,hj)
 			auth(T_Change_Auth,change)
+			auth(T_Fnumber_Auth,fnumber)
+			auth(T_Fnquery_Auth,change)
+			auth(T_Fnupdate_Auth,fnupdate)
 			@user = TUser.find_by_name(params[:name])
 			@user.power_flag = 1
 			@user.save
@@ -67,6 +91,9 @@ class UserController < ApplicationController
 		name = params[:name]
 		newpsw = params[:newpsw]
 		@user = TUser.find_by_name(name)
+		@user.work_no = params[:work_no]
+		@user.dept = params[:dept]
+		@user.flag = params[:flag]
 		if newpsw
 			@user.password = newpsw
 			if @user.save
@@ -75,9 +102,6 @@ class UserController < ApplicationController
         		render :text => "修改密码失败"
         	end
 		else
-			@user.work_no = params[:work_no]
-			@user.dept = params[:dept]
-			@user.flag = params[:flag]
 			@user.save 
 			render :text => '修改信息成功'
 		end

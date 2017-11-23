@@ -1,0 +1,51 @@
+<div class="container">
+  
+ <!--  <h2 class="form-signin-heading">登录</h2>
+  <%= form_for(:session) do |f| %> 
+  <%= f.text_field :work_no, :placeholder => "work_no", class:"input-block-level"%> 
+  <%= f.password_field :password, :placeholder => "Password", class:"input-block-level" %> 
+  <p><%= f.submit "Log in", class: "btn-submit" %></p>
+  <% end %> -->
+  
+  <form class="form_signin"  accept-charset="UTF-8">
+  <input placeholder="Email" class="input-block-level" type="text" name="work_no" id="work_no" /> 
+  <input placeholder="Password" class="input-block-level" type="password" name="password" id="password" /> 
+  <p><input type="button" name="commit" value="Log in" class="btn-submit" onclick="domiadd()" /></p>
+  </form> 
+<a href="/logout">退出</a>
+</div>
+<script>
+	// function domiadd(){
+	// 	$.post("http://localhost:3000/login",
+ //  {
+ //    work_no:"123",
+ //    password:"123"
+ //  },
+ //  function(data,status){
+ //    alert("Data: " + data);
+ //  })}
+ //    $.ajax({
+ //        url: 'http://localhost:3000/session',
+ //        type: 'get',
+ //        success: function(data){
+ //          alert("Data: " + data);
+ //        }
+ //      })
+	// }
+  
+	function domiadd(){
+  var work_no=$('#work_no').val();
+  var password=$('#password').val();
+		$.ajax({ 
+			url: "http://localhost:3000/login", 
+      // contentType: "application/x-www-form-urlencoded",
+      // crossDomain: true, 
+			type: "POST",
+			data: {"work_no":work_no, "password":password},
+			success: function(data){
+        	alert(data);
+      }
+    });
+
+	}
+</script>

@@ -277,14 +277,14 @@ class OrderController < ApplicationController
 								customer_item = "0"+row[row1.index("材料代码")].to_i.to_s#项目编码
 								unit_price = row[row1.index("合同单价")]#单价
 								order_e = Order.where("supplier_item = ? and customer_item = ? and unit_price = ? 
-									and order_type = ?",supplier_item,customer_item,unit_price, 'zxhub')
-								if order_e[0]
+									and order_type = ? and (flag is null or flag = 0)",supplier_item,customer_item,unit_price.to_s, 'zxhub')
+								if nil != order_e && order_e.length > 0	 && order_e[0]
 									order_e[0].qty_request = order_e[0].qty_request + row[row1.index("实收数量")]
 									if row[row1.index("入库日期")].to_s > order_e[0].request_date.to_s
 										order_e[0].request_date = row[row1.index("入库日期")]
 									else
 									end
-									order_e[0].save									
+									order_e[0].save	
 								else
 									order = Order.new
 									zxhub =  Zxhub.where("model = ? and fnumber = ? ",
@@ -323,6 +323,36 @@ class OrderController < ApplicationController
 					File.delete("public/"+tmp.original_filename)
 					render :text  => '文件类型不匹配,请选择对应的客户'
 				end
+			when "fhhub"
+				if row1[0] == "采购组"
+					Order.transaction do
+						sheet.each  do |row|
+							if row[0]=="采购组"
+								
+							else
+								order = Order.new
+								order.business_mode = "VMI结算"#订类型
+								order.po_number = row[row1.index("物料凭证")].to_s.split('.')[0]#客户订单编号
+								order.po_line_num = row[row1.index("行项目")].to_s.split('.')[0]#客户订单行号
+								order.supplier_item = row[row1.index("物料描述")].split('/')[0]#对应型号
+								order.customer_item = row[row1.index("物料号")]#对应代码
+								order.qty_request = row[row1.index("数量")]#需求数量
+								order.unit_price = row[row1.index("净单价")]# 不含税价格
+								order.creation_date = row[row1.index("过账日期")]#下单日期
+								order.request_date = row[row1.index("过账日期")]#需求日期
+								order.task_num = ''# 任务令
+								order.order_type = 'fhhub'
+								order.date = time
+								order.save
+							end
+						end
+					end
+					File.delete("public/"+tmp.original_filename)
+					render :text => '上传成功'
+				else
+					File.delete("public/"+tmp.original_filename)
+					render :text => '文件类型不匹配,请选择对应的客户'
+				end	
 			end
 		end
 	end
@@ -397,6 +427,9 @@ class OrderController < ApplicationController
 			if type =='zxhub'
 				address = 'V_Zxcode'
 				ctype = '中兴'
+			elsif type =='fhhub'
+				address = 'V_Fhcode'
+				ctype = '烽火'
 			else
 				address = 'V_Hwcode'
 				ctype = '华为'
@@ -411,7 +444,6 @@ class OrderController < ApplicationController
 				else
 					@fnumber = Cust_Fnumber.where("customer_number = ? and shipping_or_not = ?",customer_number,'Y')
 				end
-				
 				render :json => {:data =>@fnumber}
 			end
 		else
@@ -627,7 +659,7 @@ class OrderController < ApplicationController
 		case type
 			when "hw"
 				sql2 = sql2 +"华为%' or fname like'海思%'"
-			when "fh"
+			when "fh","fhhub"
 				sql2 = sql2 +"烽火%'"
 			when "zx","zxhub"
 				sql2 = sql2 +"中兴%'"

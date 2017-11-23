@@ -1,0 +1,28 @@
+<div>
+	 <table class="table table-bordered">
+				<tr>
+				<th>任务名称</th>
+				<th>申请人</th>
+				<th>申请部门</th>
+				<th>完成日期</th>
+				<th>时间进度</th>
+				<th>工作进度</th>
+				<th>汇报</th>
+				<th>操作</th>
+				<th><input id="checkall" type="checkbox"></th>
+			</tr>
+			<% @tasks.each do |t| %>
+			<tr>
+			    <td><%=t.Duty_Name%></td>
+				<td><%=t.Application_P%></td>
+				<td><%=t.Application_D%></td>
+				<td><%=t.End_Time%></td>
+				<td></td>
+				<td>${Task}</td>
+				<td>$450</td>
+				<td></td>
+				<td><input id="check" type="checkbox"></td>
+			</tr>
+			<% end %>    
+        </table>
+</div>

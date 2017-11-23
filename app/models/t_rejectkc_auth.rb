@@ -1,0 +1,42 @@
+class T_Rejectkc_Auth < ActiveRecord::Base
+	self.table_name = "t_rejectkc_auth"
+	establish_connection :typo
+
+	def null
+		self.create_auth = ""
+		self.delete_auth = ""
+		self.dept_auth = ""
+		self.me_gx_auth = ""
+		self.me_qj_auth = ""
+		self.me_mk_auth = ""
+		self.me_to_auth = ""
+		self.me_sg_auth = ""
+		self.me_gj_auth = ""
+		self.me_kf_auth = ""
+		self.me_gy_auth = ""
+		self.me_gs_auth = ""
+		self.me_st_auth = ""
+		self.me_sf_auth = ""
+		self.me_po_auth = ""
+		self.me_cy_auth = ""
+		self.pz_gx_auth = ""
+		self.pz_qj_auth = ""
+		self.pz_mk_auth = ""
+		self.pz_to_auth = ""
+		self.pz_sg_auth = ""
+		self.pz_gj_auth = ""
+		self.pz_kf_auth = ""
+		self.pz_gy_auth = ""
+		self.pz_gs_auth = ""
+		self.pz_st_auth = ""
+		self.pz_sf_auth = ""
+		self.pz_po_auth = ""
+		self.pz_cy_auth = ""
+		self.sg_auth = ""
+		self.cw_auth = ""
+		self.fz_auth = ""
+		self.cgy_auth = ""
+		self.export_auth = ""
+		self.save
+	end
+end

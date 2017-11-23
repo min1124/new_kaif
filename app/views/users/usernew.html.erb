@@ -1,0 +1,36 @@
+ <div class="form">
+
+    <h1>人员新增</h1>
+
+    <%= form_for(:user) do |f| %>
+      <div >
+        <label ><span>姓名</span></label>
+      	<%= f.text_field :name, :placeholder => "姓名",:class => "text" %>
+      	<label ><span>员工编号</span></label>
+      	<%= f.text_field :work_no, :placeholder => "工号",:class => "text" %>
+      	<label ><span>身份证号</span></label>
+      	<%= f.text_field :id_no, :placeholder => "身份证号",:class => "text" %>
+      </div>
+
+      <div>
+      	<label ><span>邮箱</span></label>
+      	<%= f.email_field :email, :placeholder => "邮箱",:class => "text" %>
+      	<label ><span>性别</span></label>
+      	<%= f.text_field :gender, :placeholder => "性别",:class => "text" %>
+      	<label ><span>出生日期</span></label>
+      	<%= f.text_field :birthday, :placeholder => "出生日期",:class => "text" %>
+      </div>
+      <div>
+        <label ><span>户籍地址</span></label>
+      	<%= f.text_field :adress, :placeholder => "户籍地址",:class => "text" %>
+      	<label ><span>年龄</span></label>
+      	<%= f.text_field :age, :placeholder => "年龄",:class => "text" %>
+      	<label ><span>部门</span></label>
+      	<%= f.text_field :dept_no, :placeholder => "部门",:class => "text" %>
+      </div>
+      <div>
+      	<%= f.submit "添加", class: "btn btn-info btn-sharp" %>
+      </div>
+      
+    <% end %>
+</div>

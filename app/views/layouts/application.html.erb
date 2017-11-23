@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>宿舍管理系统</title>
+  <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+  <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+  <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+
+  <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+  <script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  
+  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+  <%= csrf_meta_tags %>
+</head>
+<body class="home">
+<div class="top">
+    <div class="title"><li>宿舍管理系统</li></div>
+  <div class="dl-log">欢迎您，<span class="dl-log-user">zuo</span><a href="logout.html" title="修改密码" >[修改密码]</a><a href="logout.html" title="退出系统" >[退出]</a>
+    </div>
+</div >
+<div class="middle">
+  <div class="middle-left">
+  <div class="function"><li>功能菜单</li></div>
+  <div class="menu1">
+    
+        <li class="dropper" index="user"><i>用户管理</i></li>
+    
+        <div class="user">
+           <li><a href="/users/index" style='color:black;'>人员管理</a></li>
+           
+        </div>
+    
+        <li class="dropper" index="domitroy"><i>宿舍管理</i></li>
+    
+        <div class="domitory">
+           <li><a href="/room/index" style='color:black;'>房间管理</a></li>
+           <li><a href="/room/roomarr" style='color:black;'>房间分配</a></li>
+           <li><a href="/domit/index" style='color:black;'>宿舍管理</a></li>
+        </div>  
+    
+        <li class="dropper" index="search"><i>考勤查询</i></li>
+    
+        <li class="dropper" index="manage"><i>后台管理</i></li>
+    
+  </div>
+
+    
+    </div>
+    <div class="middle-right">
+        <div class="right-top">
+          
+        </div>
+        <div class="content">
+          <%= yield %>
+        </div>
+    </div>
+</div>
+<div class="footer"></div>
+</body>
+<!-- <script>
+  $('.dropper').click(function(){
+        var ulid=this.getAttribute('index')
+        
+        $('#'+ulid).toggle();  
+        
+  })
+
+</script>-->
+</html>

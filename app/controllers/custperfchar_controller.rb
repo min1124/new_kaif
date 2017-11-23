@@ -1,8 +1,7 @@
 class CustperfcharController < ApplicationController
 	before_action :authentication, only:[:load ]
 	def load
-		name = params[:name];
-		if "test"==name || "朱琳"==name || "曹林香"==name || "代芳"==name
+        if power(T_K3_Auth, "t_custperfchar_auth")
 			@a = Cust_Performance_Char.all;
 			render :json =>{:data =>@a}
 		else

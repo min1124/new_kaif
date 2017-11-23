@@ -14,6 +14,8 @@ class T_Reject_Auth < ActiveRecord::Base
 		self.pz_qj_auth = ""
 		self.pz_mk_auth = ""
 		self.pz_to_auth = ""
+		self.sg_auth = ""
+		self.cw_auth = ""
 		self.fz_auth = ""
 		self.cgy_auth = ""
 		self.export_auth = ""

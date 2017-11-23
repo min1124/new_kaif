@@ -1,25 +1,14 @@
 class ZxhubController < ApplicationController
 	before_action :authentication
 	def load
-		name = params[:name];
-		if "车琳"==name || "test"==name
+        if power(T_K3_Auth, "t_zxhub_auth")
             cwcxsel = params[:cwcxsel]
             sqlCwcxsel = "";
-            if cwcxsel&&(""!=cwcxsel)
-                case cwcxsel
-                    when "all"
-                        @a = Zxhub.all;
-                    when "VMI"
-                        @a = Zxhub.where("address = ?","VMI");
-                    when "BHUB"
-                        @a = Zxhub.where("address = ?","BHUB");
-                    when "B"
-                        @a = Zxhub.where("address = ?","B");
-                end
+            if cwcxsel&&(""!=cwcxsel)&&("all"!=cwcxsel)
+                @a = Zxhub.where("address = ?",cwcxsel);
             else 
                 @a = Zxhub.all;
             end
-			
 			render :json =>{:data =>@a}
 		else
 			return nopower!
@@ -27,8 +16,7 @@ class ZxhubController < ApplicationController
 	end
 
 	def delete
-		name = params[:name];
-		if "车琳"==name || "test"==name
+		if power(T_K3_Auth, "t_zxhub_auth")
         	id = params[:id];
             if Zxhub.delete(id)
                 render :text => "删除成功";
@@ -41,8 +29,7 @@ class ZxhubController < ApplicationController
 	end
 
 	def save		
-		name = params[:name];
-        if "车琳"==name || "test"==name
+		if power(T_K3_Auth, "t_zxhub_auth")
         	xh=params[:xh].lstrip.rstrip
 			khdm=params[:khdm].lstrip.rstrip
 			cw=params[:cw].lstrip.rstrip
